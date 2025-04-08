@@ -42,4 +42,3 @@ jobs:
 | `OPENAI_API_MODEL` | GPT model to use                                     | `gpt-4o`                        |
 | `exclude`          | Glob patterns for files to exclude                   | `*.lock,dist/**,*.min.js,*.map` |
 | `max_files`        | Maximum number of files to analyze                   | `50`                            |
-| `comment_type`     | Type of PR comment to create (`review` or `comment`) | `review`                        |
