@@ -1,4 +1,4 @@
-name: "PR Summarizer"
+name: "AG's PR summarizer"
 description: "AI-powered Pull Request summarization and code review using OpenAI GPT"
 inputs:
   GITHUB_TOKEN:
