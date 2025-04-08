@@ -9,17 +9,6 @@ const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 export function createSummarySystemPrompt(): string {
   return `You are an expert code summarizer. Your task is to produce a concise summary of a pull request's changes in a few sentences.
-Include key aspects such as which files were affected, the intent behind the changes, and any notable impact. Do not include extraneous commentary.`;
-}
-
-export function createSummaryPrompt(
-  filesChanged: string,
-  prTitle: string,
-  prDescription: string,
-  commitMessages: string,
-  diffSummary: string
-): string {
-  return `You are an expert code summarizer. Your task is to generate a clear, informative summary of a GitHub pull request.
 
 The summary should reflect the true scope and complexity of the PR:
 - If the PR is large or touches multiple systems, provide a longer and more detailed explanation.

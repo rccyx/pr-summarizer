@@ -46,14 +46,7 @@ async function main() {
       return !excludePatterns.some((pattern) => minimatch(filePath, pattern));
     });
 
-    const summary = await summarizeChanges(filteredDiff, prDetails);
-    if (summary) {
-      await createComment(
-        prDetails.owner,
-        prDetails.repo,
-        prDetails.pull_number,
-        `**PR Summary**\n\n${summary}`
-      );
+    const summary = 'this is a summary'
     }
   } catch (error) {
     core.setFailed(
