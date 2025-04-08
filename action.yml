@@ -19,10 +19,6 @@ inputs:
     description: "Maximum number of files to analyze per PR"
     required: false
     default: "50"
-  comment_type:
-    description: "Type of comment to make (review or comment)"
-    required: false
-    default: "review"
 
 runs:
   using: "node20"

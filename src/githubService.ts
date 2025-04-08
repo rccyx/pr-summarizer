@@ -8,7 +8,7 @@ const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
 export async function getPRDetails(): Promise<PRDetails> {
   const { repository, number } = JSON.parse(
-    readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8"),
+    readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
   );
 
   const [prResponse, commitsResponse] = await Promise.all([
@@ -37,25 +37,25 @@ export async function getPRDetails(): Promise<PRDetails> {
   };
 }
 
-export async function createReviewComment(
-  owner: string,
-  repo: string,
-  pull_number: number,
-  comments: Array<{ body: string; path: string; line: number }>,
-): Promise<void> {
-  await octokit.pulls.createReview({
-    owner,
-    repo,
-    pull_number,
-    comments,
-    event: "COMMENT",
-  });
-}
+// export async function createReviewComment(
+//   owner: string,
+//   repo: string,
+//   pull_number: number,
+//   comments: Array<{ body: string; path: string; line: number }>
+// ): Promise<void> {
+//   await octokit.pulls.createReview({
+//     owner,
+//     repo,
+//     pull_number,
+//     comments,
+//     event: "COMMENT",
+//   });
+// }
 
 export async function getDiff(
   owner: string,
   repo: string,
-  pull_number: number,
+  pull_number: number
 ): Promise<string | null> {
   try {
     const response = await octokit.pulls.get({
@@ -72,8 +72,30 @@ export async function getDiff(
     core.warning(
       `Error getting diff: ${
         error instanceof Error ? error.message : String(error)
-      }`,
+      }`
     );
     return null;
+  }
+}
+
+export async function createComment(
+  owner: string,
+  repo: string,
+  pull_number: number,
+  body: string
+): Promise<void> {
+  try {
+    await octokit.issues.createComment({
+      owner,
+      repo,
+      issue_number: pull_number,
+      body,
+    });
+  } catch (error) {
+    core.warning(
+      `Error creating comment: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
   }
 }

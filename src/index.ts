@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 import parseDiff from "parse-diff";
 import { minimatch } from "minimatch";
 
-import { getPRDetails, createReviewComment, getDiff } from "./githubService";
+import { getPRDetails, createComment, getDiff } from "./githubService";
 import { summarizeChanges } from "./summaryService";
 
 async function main() {
@@ -15,14 +15,14 @@ async function main() {
 
     let diff: string | null;
     const eventData = JSON.parse(
-      readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8"),
+      readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
     );
 
     if (eventData.action === "opened" || eventData.action === "synchronize") {
       diff = await getDiff(
         prDetails.owner,
         prDetails.repo,
-        prDetails.pull_number,
+        prDetails.pull_number
       );
     } else {
       core.info("Unsupported event: " + process.env.GITHUB_EVENT_NAME);
@@ -48,22 +48,16 @@ async function main() {
 
     const summary = await summarizeChanges(filteredDiff, prDetails);
     if (summary) {
-      await createReviewComment(
+      await createComment(
         prDetails.owner,
         prDetails.repo,
         prDetails.pull_number,
-        [
-          {
-            body: `**Summary**\n\n${summary}`,
-            path: filteredDiff[0]?.to || "",
-            line: 1,
-          },
-        ],
+        `**PR Summary**\n\n${summary}`
       );
     }
   } catch (error) {
     core.setFailed(
-      `Action failed: ${error instanceof Error ? error.message : String(error)}`,
+      `Action failed: ${error instanceof Error ? error.message : String(error)}`
     );
     throw error;
   }
@@ -71,7 +65,7 @@ async function main() {
 
 main().catch((error) => {
   core.setFailed(
-    `Unhandled error: ${error instanceof Error ? error.message : String(error)}`,
+    `Unhandled error: ${error instanceof Error ? error.message : String(error)}`
   );
   process.exit(1);
 });
