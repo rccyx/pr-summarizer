@@ -1,24 +1,33 @@
-name: "AI Code Review Action"
-description: "Perform code reviews and comment on diffs using OpenAI API."
+name: "PR Summarizer"
+description: "AI-powered Pull Request summarization and code review using OpenAI GPT"
 inputs:
   GITHUB_TOKEN:
-    description: "GitHub token to interact with the repository."
+    description: "GitHub token to interact with the repository"
     required: true
   OPENAI_API_KEY:
-    description: "OpenAI API key for GPT."
+    description: "OpenAI API key for GPT"
     required: true
   OPENAI_API_MODEL:
-    description: "OpenAI API model."
+    description: "OpenAI API model to use"
     required: false
-    default: "gpt-4o"
+    default: "gpt-4-turbo-preview"
   exclude:
-    description: "Glob patterns to exclude files from the diff analysis"
+    description: "Glob patterns to exclude files from the analysis (comma-separated)"
     required: false
-    default: ""
+    default: "*.lock,dist/**,*.min.js,*.map"
+  max_files:
+    description: "Maximum number of files to analyze per PR"
+    required: false
+    default: "50"
+  comment_type:
+    description: "Type of comment to make (review or comment)"
+    required: false
+    default: "review"
+
 runs:
   using: "node16"
   main: "dist/index.js"
 
 branding:
-  icon: "aperture"
-  color: "green"
+  icon: "git-pull-request"
+  color: "purple"
