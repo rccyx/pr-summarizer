@@ -7,44 +7,25 @@ const MAX_TOKENS = 4000;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-export function createSummarySystemPrompt(): string {
+export function createSummarySystemPrompt({
+  filesChanged,
+  prTitle,
+  prDescription,
+  commitMessages,
+  diffSummary,
+}: {
+  filesChanged: string;
+  prTitle: string;
+  prDescription: string;
+  commitMessages: string;
+  diffSummary: string;
+}): string {
   return `You are an expert code summarizer. Your task is to produce a concise summary of a pull request's changes in a few sentences.
-Include key aspects such as which files were affected, the intent behind the changes, and any notable impact. Do not include extraneous commentary.`;
-}
-
-export function createSummaryPrompt(
-  filesChanged: string,
-  prTitle: string,
-  prDescription: string,
-  commitMessages: string,
-  diffSummary: string
-): string {
-  return `You are an expert code summarizer. Your task is to generate a clear, informative summary of a GitHub pull request.
 
 The summary should reflect the true scope and complexity of the PR:
 - If the PR is large or touches multiple systems, provide a longer and more detailed explanation.
 - If it’s small or focused, keep the summary concise but informative.
-
-Focus on:
-- The main purpose of the PR (feature, fix, refactor, etc.)
-- Which areas of the codebase were affected
-- Why the changes were made (from the PR title, description, or commits)
-- Any important outcomes, implications, or breaking changes
-- How this change fits into the broader project (if relevant)
-
-Avoid:
-- Repeating the PR title verbatim
-- Listing every single file
-- Generic phrases like "updated code"
-- Subjective commentary
-
-Here are examples of good summaries:
-
----
-EXAMPLE 1 (Mid-size Feature)
-
-PR Title: Add support for secondary button variant  
-Files Changed: src/components/Button.tsx, src/styles/theme.ts  
+ents/Button.tsx, src/styles/theme.ts  
 Commit Messages: Add variant, tweak hover, update theme  
 Diff Summary: Added prop logic, color additions, minor visual updates
 
@@ -96,12 +77,33 @@ Write a summary that fits the level of complexity. Be thorough when needed, conc
 `;
 }
 
-export async function getAISummary(prompt: string): Promise<string | null> {
+export async function getAISummary({
+  git: { filesChanged, prTitle, prDescription, commitMessages, diffSummary },
+  prompt,
+}: {
+  prompt: string;
+  git: {
+    filesChanged: string;
+    prTitle: string;
+    prDescription: string;
+    commitMessages: string;
+    diffSummary: string;
+  };
+}): Promise<string | null> {
   try {
     const response = await openai.chat.completions.create({
       model: OPENAI_API_MODEL,
       messages: [
-        { role: "system", content: createSummarySystemPrompt() },
+        {
+          role: "system",
+          content: createSummarySystemPrompt({
+            filesChanged,
+            prTitle,
+            prDescription,
+            commitMessages,
+            diffSummary,
+          }),
+        },
         { role: "user", content: prompt },
       ],
       temperature: 0.3,

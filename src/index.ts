@@ -34,6 +34,8 @@ async function main() {
       return;
     }
 
+    core.info(`Fetched diff: ${diff}`);
+
     const parsedDiff = parseDiff(diff);
 
     const excludePatterns = core
@@ -45,6 +47,11 @@ async function main() {
       const filePath = file.to ?? "";
       return !excludePatterns.some((pattern) => minimatch(filePath, pattern));
     });
+
+    if (filteredDiff.length === 0) {
+      core.info("No files left after filtering.");
+      return;
+    }
 
     const summary = await summarizeChanges(filteredDiff, prDetails);
     if (summary) {
