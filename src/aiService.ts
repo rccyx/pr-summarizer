@@ -3,7 +3,7 @@ import * as core from "@actions/core";
 
 const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL =
-  core.getInput("OPENAI_API_MODEL") ?? "gpt-4-turbo-preview";
+  core.getInput("OPENAI_API_MODEL") ?? "gpt-4o";
 const MAX_TOKENS = 4000;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
