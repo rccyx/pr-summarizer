@@ -36183,30 +36183,30 @@ var OPENAI_API_MODEL = core2.getInput("OPENAI_API_MODEL") ?? "gpt-4o";
 var MAX_TOKENS = 4000;
 var openai = new openai_default({ apiKey: OPENAI_API_KEY });
 function createSummarySystemPrompt() {
-  return `You are an expert code summarizer. Your task is to produce a concise summary of a pull request's changes in a few sentences.
-Include key aspects such as which files were affected, the intent behind the changes, and any notable impact. Do not include extraneous commentary.`;
+  return `You are a highly skilled code summarizer. Your primary objective is to craft a succinct yet comprehensive summary of the changes made in a pull request. 
+Ensure to highlight key elements such as the files impacted, the rationale behind the modifications, and any significant consequences. Avoid unnecessary commentary and focus on clarity and precision.`;
 }
 function createSummaryPrompt(filesChanged, prTitle, prDescription, commitMessages, diffSummary) {
-  return `You are an expert code summarizer. Your task is to generate a clear, informative summary of a GitHub pull request.
+  return `You are a proficient code summarizer tasked with generating a clear and insightful summary of a GitHub pull request.
 
-The summary should reflect the true scope and complexity of the PR:
-- If the PR is large or touches multiple systems, provide a longer and more detailed explanation.
-- If it’s small or focused, keep the summary concise but informative.
+The summary should accurately represent the scope and complexity of the PR:
+- For larger PRs that affect multiple systems, provide a detailed and thorough explanation.
+- For smaller, focused PRs, maintain a concise yet informative summary.
 
-Focus on:
-- The main purpose of the PR (feature, fix, refactor, etc.)
-- Which areas of the codebase were affected
-- Why the changes were made (from the PR title, description, or commits)
-- Any important outcomes, implications, or breaking changes
-- How this change fits into the broader project (if relevant)
+Key points to address:
+- The primary objective of the PR (e.g., feature addition, bug fix, refactor)
+- The specific areas of the codebase that were modified
+- The reasons for the changes (derived from the PR title, description, or commit messages)
+- Any significant outcomes, implications, or potential breaking changes
+- The relevance of this change within the broader context of the project
 
 Avoid:
-- Repeating the PR title verbatim
-- Listing every single file
-- Generic phrases like "updated code"
-- Subjective commentary
+- Reiterating the PR title verbatim
+- Enumerating every single file changed
+- Using vague phrases like "updated code"
+- Including subjective opinions
 
-Here are examples of good summaries:
+Below are examples of effective summaries:
 
 ---
 EXAMPLE 1 (Mid-size Feature)
@@ -36216,7 +36216,7 @@ Files Changed: src/components/Button.tsx, src/styles/theme.ts
 Commit Messages: Add variant, tweak hover, update theme  
 Diff Summary: Added prop logic, color additions, minor visual updates
 
-This PR adds a new "secondary" variant to the Button component, supporting updated design specifications. It introduces conditional styling logic in Button.tsx and expands the theme with secondary color definitions. Also includes small visual tweaks for hover consistency across variants.
+This PR introduces a new "secondary" variant to the Button component, aligning with updated design specifications. It implements conditional styling logic in Button.tsx and enhances the theme with definitions for secondary colors. Additionally, it includes minor visual adjustments for hover consistency across variants.
 
 ---
 EXAMPLE 2 (Bug Fix with Edge Cases)
@@ -36226,7 +36226,7 @@ Files Changed: utils/date.ts, tests/date.test.ts
 Commit Messages: Fix UTC handling, add DST tests  
 Diff Summary: Adjusted formatDate() to use local time, added DST unit tests
 
-Fixes a longstanding issue with the formatDate utility where UTC was incorrectly used in local time contexts. The updated logic now correctly handles daylight saving time transitions, and tests were added to ensure coverage of edge cases around DST boundaries.
+This PR resolves a persistent issue with the formatDate utility, where UTC was incorrectly applied in local time scenarios. The revised logic now accurately manages daylight saving time transitions, and new tests have been added to cover edge cases related to DST boundaries.
 
 ---
 EXAMPLE 3 (Large Infra Refactor)
@@ -36236,7 +36236,7 @@ Files Changed: ci/, docker/, scripts/, config/, 30+ files total
 Commit Messages: Split monolith deploy, add microservice configs, update CI  
 Diff Summary: Introduced per-service Dockerfiles, split CI jobs, rewrote deploy scripts
 
-Major refactor of the deployment pipeline to support modular, service-specific deployments. Dockerfiles and deployment scripts were split by service, enabling independent builds and faster iteration. CI configuration was restructured to parallelize build/test/deploy jobs. These changes lay the groundwork for future microservice scalability and deployment automation.
+This major refactor of the deployment pipeline facilitates modular, service-specific deployments. Dockerfiles and deployment scripts have been separated by service, allowing for independent builds and quicker iterations. The CI configuration has been restructured to enable parallel execution of build/test/deploy jobs. These modifications lay the foundation for future scalability and automation in microservice deployments.
 
 ---
 
@@ -36257,7 +36257,7 @@ ${commitMessages}
 Code Diff Summary:  
 ${diffSummary}
 
-Write a summary that fits the level of complexity. Be thorough when needed, concise when appropriate. Use plain, professional language. Start below:
+Please provide a summary that aligns with the complexity of the changes. Be thorough when necessary, concise when appropriate, and use clear, professional language. Begin your summary below:
 `;
 }
 async function getAISummary(prompt) {
