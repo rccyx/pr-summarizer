@@ -48,12 +48,7 @@ async function main() {
 
     const summary = await summarizeChanges(filteredDiff, prDetails);
     if (summary) {
-      await createComment(
-        prDetails.owner,
-        prDetails.repo,
-        prDetails.pull_number,
-        `**PR Summary**\n\n${summary}`
-      );
+      console.log("heoo");
     }
   } catch (error) {
     core.setFailed(
