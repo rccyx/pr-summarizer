@@ -1,6 +1,7 @@
 import * as core from "@actions/core";
 import { readFileSync } from "fs";
 import parseDiff from "parse-diff";
+import { minimatch } from "minimatch";
 
 import { getPRDetails, createReviewComment, getDiff } from "./githubService";
 import { summarizeChanges } from "./summaryService";
@@ -39,10 +40,10 @@ async function main() {
       .getInput("exclude")
       .split(",")
       .map((s) => s.trim());
+
     const filteredDiff = parsedDiff.filter((file) => {
-      return !excludePatterns.some((pattern) =>
-        new RegExp(pattern).test(file.to ?? ""),
-      );
+      const filePath = file.to ?? "";
+      return !excludePatterns.some((pattern) => minimatch(filePath, pattern));
     });
 
     const summary = await summarizeChanges(filteredDiff, prDetails);

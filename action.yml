@@ -14,7 +14,7 @@ inputs:
   exclude:
     description: "Glob patterns to exclude files from the analysis (comma-separated)"
     required: false
-    default: "*.lock,dist/**,*.min.js,*.map"
+    default: "**/*.lock,dist/**/*,**/*.min.js,**/*.map"
   max_files:
     description: "Maximum number of files to analyze per PR"
     required: false
@@ -25,7 +25,7 @@ inputs:
     default: "review"
 
 runs:
-  using: "node16"
+  using: "node20"
   main: "dist/index.js"
 
 branding:

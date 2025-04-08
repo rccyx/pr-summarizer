@@ -27,4 +27,4 @@ jobs:
           OPENAI_API_MODEL: "gpt-4-turbo-preview"
           exclude: "*.lock,dist/**,*.min.js,*.map"
           max_files: "50"
-          comment_type: "review" 
+          comment_type: "review"
