@@ -3,7 +3,7 @@ import * as core from "@actions/core";
 
 const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL =
-  core.getInput("OPENAI_API_MODEL") || "gpt-4-turbo-preview";
+  core.getInput("OPENAI_API_MODEL") ?? "gpt-4-turbo-preview";
 const MAX_TOKENS = 4000;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
@@ -18,7 +18,7 @@ export function createSummaryPrompt(
   prTitle: string,
   prDescription: string,
   commitMessages: string,
-  diffSummary: string
+  diffSummary: string,
 ): string {
   return `Please provide a concise summary of the following pull request changes.
 
@@ -47,20 +47,12 @@ export async function getAISummary(prompt: string): Promise<string | null> {
       temperature: 0.3,
       max_tokens: MAX_TOKENS,
     });
-    const content =
-      response.choices[0].message?.content?.trim() || "";
+    const content = response.choices[0].message?.content?.trim() || "";
     return content || null;
   } catch (error) {
     core.warning(
-      `AI API Error: ${error instanceof Error ? error.message : String(error)}`
+      `AI API Error: ${error instanceof Error ? error.message : String(error)}`,
     );
     return null;
   }
 }
-
-
-
-
-export const aiService = {
-  getAISummary,
-};

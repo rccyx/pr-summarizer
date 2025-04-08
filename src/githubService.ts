@@ -6,9 +6,9 @@ import { PRDetails } from "./types";
 const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
 const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
-async function getPRDetails(): Promise<PRDetails> {
+export async function getPRDetails(): Promise<PRDetails> {
   const { repository, number } = JSON.parse(
-    readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
+    readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8"),
   );
 
   const [prResponse, commitsResponse] = await Promise.all([
@@ -37,11 +37,11 @@ async function getPRDetails(): Promise<PRDetails> {
   };
 }
 
-async function createReviewComment(
+export async function createReviewComment(
   owner: string,
   repo: string,
   pull_number: number,
-  comments: Array<{ body: string; path: string; line: number }>
+  comments: Array<{ body: string; path: string; line: number }>,
 ): Promise<void> {
   await octokit.pulls.createReview({
     owner,
@@ -52,10 +52,10 @@ async function createReviewComment(
   });
 }
 
-async function getDiff(
+export async function getDiff(
   owner: string,
   repo: string,
-  pull_number: number
+  pull_number: number,
 ): Promise<string | null> {
   try {
     const response = await octokit.pulls.get({
@@ -66,21 +66,14 @@ async function getDiff(
         accept: "application/vnd.github.v3.diff",
       },
     });
+    // The response.data is expected to be the diff string.
     return response.data as unknown as string;
   } catch (error) {
     core.warning(
       `Error getting diff: ${
         error instanceof Error ? error.message : String(error)
-      }`
+      }`,
     );
     return null;
   }
 }
-
-
-
-export const githubService = {
-  getPRDetails,
-  createReviewComment,
-  getDiff,
-};

@@ -1,5 +1,5 @@
 {
-  "name": "@ashgw/code-reviewer",
+  "name": "@ashgw/pr-summarizer",
   "version": "1.0.0",
   "description": "AI powered code reviews",
   "main": "lib/main.js",
