@@ -1,10 +1,10 @@
 # AI PR Summarizer
 
 Lightweight GitHub Action I built to keep track of what I've done in small projects or libraries. Instead of setting up heavy integrations with tools like Graphite or Coderabbit, this action generates a concise summary of pull request changes. It’s lightweight, easy to set up, and serves as a quick way to review the essence of changes made in a PR. You’re welcome to use it too!
+
 ## Setup
 
 1. Add this to `.github/workflows/summarize.yml`:
-
 
 ```yaml
 name: PR Summary
@@ -31,7 +31,6 @@ jobs:
           OPENAI_API_MODEL: "gpt-4o" # Default GPT-4 model to use
           exclude: "*.min.js,*.map" # Files to exclude from analysis
           max_files: "50" # Maximum number of files to analyze
-          comment_type: "review" # Comment type (review/comment)
 ```
 
 ## Configuration Options
@@ -40,7 +39,7 @@ jobs:
 | ------------------ | ---------------------------------------------------- | ------------------------------- |
 | `GITHUB_TOKEN`     | GitHub token for API access                          | Required                        |
 | `OPENAI_API_KEY`   | Your OpenAI API key                                  | Required                        |
-| `OPENAI_API_MODEL` | GPT model to use                                     | `gpt-4o`           |
+| `OPENAI_API_MODEL` | GPT model to use                                     | `gpt-4o`                        |
 | `exclude`          | Glob patterns for files to exclude                   | `*.lock,dist/**,*.min.js,*.map` |
 | `max_files`        | Maximum number of files to analyze                   | `50`                            |
 | `comment_type`     | Type of PR comment to create (`review` or `comment`) | `review`                        |
