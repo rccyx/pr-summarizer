@@ -6,7 +6,7 @@
   "author": "Ashref Gwader",
   "license": "MIT",
   "scripts": {
-    "build": "bun build",
+    "build": "bun build src/index.ts --target=node --outdir=dist --format=esm",
     "package": "ncc build --source-map --license licenses.txt",
     "format": "prettier --write .",
     "lint": "prettier --check ."
