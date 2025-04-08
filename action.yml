@@ -10,7 +10,7 @@ inputs:
   OPENAI_API_MODEL:
     description: "OpenAI API model to use"
     required: false
-    default: "gpt-4-turbo-preview"
+    default: "gpt-4o"
   exclude:
     description: "Glob patterns to exclude files from the analysis (comma-separated)"
     required: false
