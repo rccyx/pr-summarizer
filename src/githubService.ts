@@ -66,7 +66,7 @@ export async function getDiff(
         accept: "application/vnd.github.v3.diff",
       },
     });
-    // The response.data is expected to be the diff string.
+    // the response.data is expected to be the diff string.
     return response.data as unknown as string;
   } catch (error) {
     core.warning(

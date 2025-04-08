@@ -35,7 +35,6 @@ async function main() {
 
     const parsedDiff = parseDiff(diff);
 
-    // Exclude files that match provided patterns
     const excludePatterns = core
       .getInput("exclude")
       .split(",")

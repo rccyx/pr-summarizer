@@ -1,1 +1,1 @@
-# AI code review action
+# AI Summarizer
