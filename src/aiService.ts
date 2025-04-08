@@ -7,7 +7,7 @@ const MAX_TOKENS = 4000;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-export function createSummarySystemPrompt({
+function createSummarySystemPrompt({
   filesChanged,
   prTitle,
   prDescription,
@@ -78,31 +78,32 @@ Write a summary that fits the level of complexity. Be thorough when needed, conc
 }
 
 export async function getAISummary({
-  git: { filesChanged, prTitle, prDescription, commitMessages, diffSummary },
-  prompt,
+  filesChanged,
+  prTitle,
+  prDescription,
+  commitMessages,
+  diffSummary,
 }: {
-  prompt: string;
-  git: {
-    filesChanged: string;
-    prTitle: string;
-    prDescription: string;
-    commitMessages: string;
-    diffSummary: string;
-  };
+  filesChanged: string;
+  prTitle: string;
+  prDescription: string;
+  commitMessages: string;
+  diffSummary: string;
 }): Promise<string | null> {
+  const prompt = createSummarySystemPrompt({
+    filesChanged,
+    prTitle,
+    prDescription,
+    commitMessages,
+    diffSummary,
+  });
   try {
     const response = await openai.chat.completions.create({
       model: OPENAI_API_MODEL,
       messages: [
         {
           role: "system",
-          content: createSummarySystemPrompt({
-            filesChanged,
-            prTitle,
-            prDescription,
-            commitMessages,
-            diffSummary,
-          }),
+          content: prompt,
         },
         { role: "user", content: prompt },
       ],

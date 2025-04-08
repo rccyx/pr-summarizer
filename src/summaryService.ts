@@ -1,5 +1,5 @@
 import { File } from "parse-diff";
-import { getAISummary, createSummarySystemPrompt } from "./aiService";
+import { getAISummary } from "./aiService";
 import { PRDetails } from "./types";
 
 export async function summarizeChanges(
@@ -17,23 +17,12 @@ export async function summarizeChanges(
     diffSummary += `${file.to || "unknown file"}: ${file.chunks.length} change(s) detected.\n`;
   }
 
-  const prompt = createSummarySystemPrompt({
+  const summary = await getAISummary({
     filesChanged,
     prTitle: prDetails.title,
     prDescription: prDetails.description,
     commitMessages,
     diffSummary,
-  });
-
-  const summary = await getAISummary({
-    git: {
-      filesChanged,
-      prTitle: prDetails.title,
-      prDescription: prDetails.description,
-      commitMessages,
-      diffSummary,
-    },
-    prompt,
   });
   return summary;
 }
