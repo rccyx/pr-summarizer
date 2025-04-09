@@ -89,22 +89,23 @@ export async function createComment(
 ): Promise<void> {
   try {
     if (useAuthorIdentity && author) {
-      // When useAuthorIdentity is true and we have an author, update the PR description
-      // This will make the summary appear as part of the PR description, authored by the PR creator
-      const pr = await octokit.pulls.get({
+      // When useAuthorIdentity is true and we have an author, create a review as the PR author
+      // First get the latest commit SHA
+      const commits = await octokit.pulls.listCommits({
         owner,
         repo,
         pull_number,
       });
 
-      const currentBody = pr.data.body || "";
-      const updatedBody = currentBody + "\n\n" + body;
+      const latestCommitSha = commits.data[commits.data.length - 1].sha;
 
-      await octokit.pulls.update({
+      await octokit.pulls.createReview({
         owner,
         repo,
         pull_number,
-        body: updatedBody,
+        commit_id: latestCommitSha,
+        body,
+        event: "COMMENT",
       });
     } else {
       // Default behavior - create comment as bot
