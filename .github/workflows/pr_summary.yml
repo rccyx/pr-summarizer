@@ -20,10 +20,11 @@ jobs:
           fetch-depth: 0
 
       - name: Summarize PR
-        uses: ashgw/pr-summarizer@main
+        uses: ./action.yml
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_API_MODEL: "gpt-4o"
           exclude: "*.lock,dist/**,*.min.js,*.map"
           max_files: "50"
+          owner: "bot"

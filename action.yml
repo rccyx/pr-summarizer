@@ -19,6 +19,10 @@ inputs:
     description: "Maximum number of files to analyze per PR"
     required: false
     default: "50"
+  owner:
+    description: "Owner type to use for the comment, either 'bot' or 'self'"
+    required: false
+    default: "bot"
 
 runs:
   using: "node20"

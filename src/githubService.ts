@@ -30,6 +30,7 @@ export async function getPRDetails(): Promise<PRDetails> {
     pull_number: number,
     title: prResponse.data.title || "",
     description: prResponse.data.body || "",
+    author: prResponse.data.user?.login || "",
     commits: commitsResponse.data.map((commit) => ({
       sha: commit.sha,
       message: commit.commit.message,
@@ -82,15 +83,29 @@ export async function createComment(
   owner: string,
   repo: string,
   pull_number: number,
-  body: string
+  body: string,
+  useAuthorIdentity: boolean = false,
+  author?: string
 ): Promise<void> {
   try {
-    await octokit.issues.createComment({
-      owner,
-      repo,
-      issue_number: pull_number,
-      body,
-    });
+    if (useAuthorIdentity && author) {
+      // When useAuthorIdentity is true and we have an author, create a review comment as the PR author
+      await octokit.pulls.createReview({
+        owner,
+        repo,
+        pull_number,
+        body,
+        event: "COMMENT",
+      });
+    } else {
+      // Default behavior - create comment as bot
+      await octokit.issues.createComment({
+        owner,
+        repo,
+        issue_number: pull_number,
+        body,
+      });
+    }
   } catch (error) {
     core.warning(
       `Error creating comment: ${

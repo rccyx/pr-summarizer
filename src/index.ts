@@ -48,11 +48,16 @@ async function main() {
 
     const summary = await summarizeChanges(filteredDiff, prDetails);
     if (summary) {
+      const ownerType = core.getInput("owner") || "bot";
+      const useAuthorIdentity = ownerType === "self";
+
       await createComment(
         prDetails.owner,
         prDetails.repo,
         prDetails.pull_number,
-        `**PR Summary**\n\n${summary}`
+        `**PR Summary**\n\n${summary}`,
+        useAuthorIdentity,
+        useAuthorIdentity ? prDetails.author : undefined
       );
     }
   } catch (error) {

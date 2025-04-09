@@ -35,10 +35,10 @@ jobs:
 
 ## Configuration Options
 
-| Option             | Description                                          | Default                         |
-| ------------------ | ---------------------------------------------------- | ------------------------------- |
-| `GITHUB_TOKEN`     | GitHub token for API access                          | Required                        |
-| `OPENAI_API_KEY`   | Your OpenAI API key                                  | Required                        |
-| `OPENAI_API_MODEL` | GPT model to use                                     | `gpt-4o`                        |
-| `exclude`          | Glob patterns for files to exclude                   | `*.lock,dist/**,*.min.js,*.map` |
-| `max_files`        | Maximum number of files to analyze                   | `50`                            |
+| Option             | Description                        | Default                         |
+| ------------------ | ---------------------------------- | ------------------------------- |
+| `GITHUB_TOKEN`     | GitHub token for API access        | Required                        |
+| `OPENAI_API_KEY`   | Your OpenAI API key                | Required                        |
+| `OPENAI_API_MODEL` | GPT model to use                   | `gpt-4o`                        |
+| `exclude`          | Glob patterns for files to exclude | `*.lock,dist/**,*.min.js,*.map` |
+| `max_files`        | Maximum number of files to analyze | `50`                            |
