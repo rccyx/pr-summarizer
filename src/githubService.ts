@@ -100,7 +100,6 @@ export async function createComment(
       });
 
       const currentBody = pr.data.body || "";
-      // Add the summary at the top of the PR description, without the horizontal line
       const updatedBody = formattedBody + "\n\n" + currentBody;
 
       await octokit.pulls.update({

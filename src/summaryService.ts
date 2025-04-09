@@ -29,7 +29,6 @@ export async function summarizeChanges(
 
   if (!summary) return null;
 
-  // Format the summary with better spacing and structure
   const formattedSummary = `## PR Summary
 
 ${summary

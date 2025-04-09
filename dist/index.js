@@ -36204,10 +36204,6 @@ var OPENAI_API_KEY = core2.getInput("OPENAI_API_KEY");
 var OPENAI_API_MODEL = core2.getInput("OPENAI_API_MODEL") ?? "gpt-4o";
 var MAX_TOKENS = 4000;
 var openai = new openai_default({ apiKey: OPENAI_API_KEY });
-function createSummarySystemPrompt() {
-  return `You are an expert code summarizer. Your task is to produce a concise summary of a pull request's changes in a few sentences.
-Include key aspects such as which files were affected, the intent behind the changes, and any notable impact. Do not include extraneous commentary.`;
-}
 function createSummaryPrompt(filesChanged, prTitle, prDescription, commitMessages, diffSummary) {
   return `You are an expert code summarizer. Your task is to generate a clear, informative summary of a GitHub pull request.
 
@@ -36286,10 +36282,7 @@ async function getAISummary(prompt) {
   try {
     const response = await openai.chat.completions.create({
       model: OPENAI_API_MODEL,
-      messages: [
-        { role: "system", content: createSummarySystemPrompt() },
-        { role: "user", content: prompt }
-      ],
+      messages: [{ role: "user", content: prompt }],
       temperature: 0.3,
       max_tokens: MAX_TOKENS
     });

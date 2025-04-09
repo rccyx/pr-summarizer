@@ -7,11 +7,6 @@ const MAX_TOKENS = 4000;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-export function createSummarySystemPrompt(): string {
-  return `You are an expert code summarizer. Your task is to produce a concise summary of a pull request's changes in a few sentences.
-Include key aspects such as which files were affected, the intent behind the changes, and any notable impact. Do not include extraneous commentary.`;
-}
-
 export function createSummaryPrompt(
   filesChanged: string,
   prTitle: string,
@@ -97,10 +92,7 @@ export async function getAISummary(prompt: string): Promise<string | null> {
   try {
     const response = await openai.chat.completions.create({
       model: OPENAI_API_MODEL,
-      messages: [
-        { role: "system", content: createSummarySystemPrompt() },
-        { role: "user", content: prompt },
-      ],
+      messages: [{ role: "user", content: prompt }],
       temperature: 0.3,
       max_tokens: MAX_TOKENS,
     });

@@ -1,5 +1,5 @@
 name: "AG's PR summarizer"
-description: "AI-powered Pull Request summarization and code review using OpenAI GPT"
+description: "AI Pull Request summarization"
 inputs:
   GITHUB_TOKEN:
     description: "GitHub token to interact with the repository"
@@ -20,9 +20,9 @@ inputs:
     required: false
     default: "50"
   owner:
-    description: "Owner type to use for the comment, either 'bot' or 'self'"
+    description: "Who should own the summary: 'bot' (appears as GitHub Action comment) or 'author' (appears in PR description as the PR author)"
     required: false
-    default: "bot"
+    default: "author"
 
 runs:
   using: "node20"

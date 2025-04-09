@@ -1,10 +1,10 @@
 # AI PR Summarizer
 
-Lightweight GitHub Action I built to keep track of what I've done in small projects or libraries. Instead of setting up heavy integrations with tools like Graphite or Coderabbit, this action generates a concise summary of pull request changes. It’s lightweight, easy to set up, and serves as a quick way to review the essence of changes made in a PR. You’re welcome to use it too!
+Lightweight GitHub Action I built to keep track of what I've done in small projects or libraries. Instead of setting up heavy integrations with tools like Graphite or Coderabbit, this action generates a concise summary of pull request changes. It's lightweight, easy to set up, and serves as a quick way to review the essence of changes made in a PR.
 
 ## Setup
 
-1. Add this to `.github/workflows/summarize.yml`:
+Add it as an action, for example to `.github/workflows/summarize.yml`:
 
 ```yaml
 name: PR Summary
@@ -31,6 +31,7 @@ jobs:
           OPENAI_API_MODEL: "gpt-4o" # Default GPT-4 model to use
           exclude: "*.min.js,*.map" # Files to exclude from analysis
           max_files: "50" # Maximum number of files to analyze
+          owner: "bot" # Who should own the summary: 'bot' or 'author'
 ```
 
 ## Configuration Options
@@ -42,3 +43,13 @@ jobs:
 | `OPENAI_API_MODEL` | GPT model to use                   | `gpt-4o`                        |
 | `exclude`          | Glob patterns for files to exclude | `*.lock,dist/**,*.min.js,*.map` |
 | `max_files`        | Maximum number of files to analyze | `50`                            |
+| `owner`            | Who owns the summary               | `bot`                           |
+
+## Summary Ownership
+
+The `owner` parameter controls how the PR summary appears:
+
+- `author` (default): The summary is added to the PR description, appearing as if written by the PR author
+- `bot`: The summary appears as a comment from the GitHub Action bot
+
+Choose `author` if you want the summary to be part of the PR description itself, or `bot` if you prefer it as a separate comment.
