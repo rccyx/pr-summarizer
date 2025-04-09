@@ -55,7 +55,7 @@ async function main() {
         prDetails.owner,
         prDetails.repo,
         prDetails.pull_number,
-        `**PR Summary**\n\n${summary}`,
+        `## PR Summary\n\n${summary}`,
         useAuthorIdentity,
         useAuthorIdentity ? prDetails.author : undefined
       );
