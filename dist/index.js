@@ -30638,19 +30638,22 @@ async function getDiff(owner, repo, pull_number) {
 async function createComment(owner, repo, pull_number, body, useAuthorIdentity = false, author) {
   try {
     if (useAuthorIdentity && author) {
-      const commits = await octokit.pulls.listCommits({
+      const pr = await octokit.pulls.get({
         owner,
         repo,
         pull_number
       });
-      const latestCommitSha = commits.data[commits.data.length - 1].sha;
-      await octokit.pulls.createReview({
+      const currentBody = pr.data.body || "";
+      const updatedBody = body + `
+
+---
+
+` + currentBody;
+      await octokit.pulls.update({
         owner,
         repo,
         pull_number,
-        commit_id: latestCommitSha,
-        body,
-        event: "COMMENT"
+        body: updatedBody
       });
     } else {
       await octokit.issues.createComment({
