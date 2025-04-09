@@ -49,7 +49,7 @@ async function main() {
     const summary = await summarizeChanges(filteredDiff, prDetails);
     if (summary) {
       const ownerType = core.getInput("owner") || "bot";
-      const useAuthorIdentity = ownerType === "self";
+      const useAuthorIdentity = ownerType === "author";
 
       await createComment(
         prDetails.owner,
