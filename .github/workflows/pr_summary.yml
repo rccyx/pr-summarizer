@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Summarize PR
-        uses: ./action.yml
+        uses: ./
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

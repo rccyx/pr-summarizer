@@ -30612,6 +30612,7 @@ async function getPRDetails() {
     pull_number: number,
     title: prResponse.data.title || "",
     description: prResponse.data.body || "",
+    author: prResponse.data.user?.login || "",
     commits: commitsResponse.data.map((commit) => ({
       sha: commit.sha,
       message: commit.commit.message
@@ -30634,14 +30635,24 @@ async function getDiff(owner, repo, pull_number) {
     return null;
   }
 }
-async function createComment(owner, repo, pull_number, body) {
+async function createComment(owner, repo, pull_number, body, useAuthorIdentity = false, author) {
   try {
-    await octokit.issues.createComment({
-      owner,
-      repo,
-      issue_number: pull_number,
-      body
-    });
+    if (useAuthorIdentity && author) {
+      await octokit.pulls.createReview({
+        owner,
+        repo,
+        pull_number,
+        body,
+        event: "COMMENT"
+      });
+    } else {
+      await octokit.issues.createComment({
+        owner,
+        repo,
+        issue_number: pull_number,
+        body
+      });
+    }
   } catch (error) {
     core.warning(`Error creating comment: ${error instanceof Error ? error.message : String(error)}`);
   }
@@ -36320,9 +36331,11 @@ async function main() {
     });
     const summary = await summarizeChanges(filteredDiff, prDetails);
     if (summary) {
+      const ownerType = core3.getInput("owner") || "bot";
+      const useAuthorIdentity = ownerType === "self";
       await createComment(prDetails.owner, prDetails.repo, prDetails.pull_number, `**PR Summary**
 
-${summary}`);
+${summary}`, useAuthorIdentity, useAuthorIdentity ? prDetails.author : undefined);
     }
   } catch (error) {
     core3.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`);
