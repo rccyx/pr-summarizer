@@ -4,7 +4,7 @@
 set -e
 echo "Running bun build before push..."
 # Run the build
-if ! bun run build; then
+if ! bun run build && git commit -am "build dist"; then
   echo "❌ Build failed. Push aborted."
   exit 1
 fi
