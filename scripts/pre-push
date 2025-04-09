@@ -1,0 +1,12 @@
+
+#!/bin/bash
+# Abort on error
+set -e
+echo "Running bun build before push..."
+# Run the build
+if ! bun run build; then
+  echo "❌ Build failed. Push aborted."
+  exit 1
+fi
+echo "✅ Build succeeded. Proceeding with push."
+exit 0
