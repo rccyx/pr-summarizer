@@ -23,6 +23,10 @@ inputs:
     description: "Who should own the summary: 'bot' (appears as GitHub Action comment) or 'author' (appears in PR description as the PR author)"
     required: false
     default: "author"
+  override_summary:
+    description: "Whether to override the existing summary (true) or append to it (false)"
+    required: true
+    default: "false"
 
 runs:
   using: "node20"

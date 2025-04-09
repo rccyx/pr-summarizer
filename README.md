@@ -32,6 +32,7 @@ jobs:
           exclude: "*.min.js,*.map" # Files to exclude from analysis
           max_files: "50" # Maximum number of files to analyze
           owner: "bot" # Who should own the summary: 'bot' or 'author'
+          override_summary: "true" # Whether to override existing summary or append
 ```
 
 ## Configuration Options
@@ -44,6 +45,7 @@ jobs:
 | `exclude`          | Glob patterns for files to exclude | `*.lock,dist/**,*.min.js,*.map` |
 | `max_files`        | Maximum number of files to analyze | `50`                            |
 | `owner`            | Who owns the summary               | `bot`                           |
+| `override_summary` | Override or append to summary      | `false`                         |
 
 ## Summary Ownership
 
@@ -53,3 +55,10 @@ The `owner` parameter controls how the PR summary appears:
 - `bot`: The summary appears as a comment from the GitHub Action bot
 
 Choose `author` if you want the summary to be part of the PR description itself, or `bot` if you prefer it as a separate comment.
+
+## Summary Behavior
+
+The `override_summary` parameter controls how the summary is added when using `owner: "author"`:
+
+- `true` (default): The new summary replaces any existing content in the PR description
+- `false`: The new summary is appended to the existing PR description

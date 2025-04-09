@@ -28,3 +28,4 @@ jobs:
           exclude: "*.lock,dist/**,*.min.js,*.map"
           max_files: "50"
           owner: "author"
+          override_summary: "true"
