@@ -30638,10 +30638,17 @@ async function getDiff(owner, repo, pull_number) {
 async function createComment(owner, repo, pull_number, body, useAuthorIdentity = false, author) {
   try {
     if (useAuthorIdentity && author) {
+      const commits = await octokit.pulls.listCommits({
+        owner,
+        repo,
+        pull_number
+      });
+      const latestCommitSha = commits.data[commits.data.length - 1].sha;
       await octokit.pulls.createReview({
         owner,
         repo,
         pull_number,
+        commit_id: latestCommitSha,
         body,
         event: "COMMENT"
       });
@@ -36332,7 +36339,7 @@ async function main() {
     const summary = await summarizeChanges(filteredDiff, prDetails);
     if (summary) {
       const ownerType = core3.getInput("owner") || "bot";
-      const useAuthorIdentity = ownerType === "self";
+      const useAuthorIdentity = ownerType === "author";
       await createComment(prDetails.owner, prDetails.repo, prDetails.pull_number, `**PR Summary**
 
 ${summary}`, useAuthorIdentity, useAuthorIdentity ? prDetails.author : undefined);
