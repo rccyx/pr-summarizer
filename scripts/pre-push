@@ -2,11 +2,18 @@
 #!/bin/bash
 # Abort on error
 set -e
+
 echo "Running bun build before push..."
+
 # Run the build
-if ! bun run build && git commit -am "build dist"; then
+if ! bun run build; then
   echo "❌ Build failed. Push aborted."
   exit 1
 fi
+
+# Commit the build output
+git add -A
+git commit -m "build dist" || echo "No changes to commit"
+
 echo "✅ Build succeeded. Proceeding with push."
 exit 0
