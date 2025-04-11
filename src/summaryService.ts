@@ -4,7 +4,7 @@ import { PRDetails } from "./types";
 
 export async function summarizeChanges(
   parsedDiff: File[],
-  prDetails: PRDetails,
+  prDetails: PRDetails
 ): Promise<string | null> {
   const filesChanged = parsedDiff.map((file) => file.to || "").join(", ");
 
@@ -22,7 +22,7 @@ export async function summarizeChanges(
     prDetails.title,
     prDetails.description,
     commitMessages,
-    diffSummary,
+    diffSummary
   );
 
   const summary = await getAISummary(prompt);
