@@ -1,12 +1,6 @@
 import OpenAI from "openai";
 import * as core from "@actions/core";
 
-const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
-const OPENAI_API_MODEL = core.getInput("OPENAI_API_MODEL") ?? "gpt-4o";
-const MAX_TOKENS = 4000;
-
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-
 export function createSummaryPrompt(
   filesChanged: string,
   prTitle: string,
@@ -14,118 +8,59 @@ export function createSummaryPrompt(
   commitMessages: string,
   diffSummary: string
 ): string {
-  return `You are an expert code summarizer. Your task is to generate a clear, informative summary of a GitHub pull request.
+  return `You are a GitHub code review assistant. Your task is to write a clear, precise, and insightful summary of a pull request. 
 
-The summary should reflect the true scope and complexity of the PR:
-- If the PR is large or touches multiple systems, provide a longer and more detailed explanation.
-- If it’s small or focused, keep the summary concise but informative.
-
-Focus on:
-- The main purpose of the PR (feature, fix, refactor, etc.)
-- Which areas of the codebase were affected
-- Why the changes were made (from the PR title, description, or commits)
-- Any important outcomes, implications, or breaking changes
-- How this change fits into the broader project (if relevant)
+Your summary should:
+- Identify the purpose of the PR (feature, fix, refactor, infra, etc.).
+- Infer *why* the change was made using signals from the title, description, commit messages, and code diff.
+- Describe *how* the change was implemented (at a system/module level, not per file).
+- Call out any breaking changes, implications, or deployment considerations.
+- Use professional, concise language and a neutral tone.
 
 Avoid:
-- Repeating the PR title verbatim
-- Listing every single file
-- Generic phrases like "updated code"
-- Subjective commentary
+- Repeating the PR title verbatim.
+- Listing file paths or file names unless they're semantically important.
+- Using vague phrases like "code improvements" or "update stuff."
+- Making subjective or promotional statements.
 
-Here are examples of good summaries:
-
----
-EXAMPLE 1 (Mid-size Feature)
-
-PR Title: Add support for secondary button variant  
-Files Changed: src/components/Button.tsx, src/styles/theme.ts  
-Commit Messages: Add variant, tweak hover, update theme  
-Diff Summary: Added prop logic, color additions, minor visual updates
-
-This PR adds a new "secondary" variant to the Button component, supporting updated design specifications. It introduces conditional styling logic in Button.tsx and expands the theme with secondary color definitions. Also includes small visual tweaks for hover consistency across variants.
+Use the examples below as guidance.
 
 ---
-EXAMPLE 2 (Bug Fix with Edge Cases)
+✔️ **GOOD EXAMPLE** (Infra / CI feature):
 
-PR Title: Fix timezone bug in date formatting utility  
-Files Changed: utils/date.ts, tests/date.test.ts  
-Commit Messages: Fix UTC handling, add DST tests  
-Diff Summary: Adjusted formatDate() to use local time, added DST unit tests
-
-Fixes a longstanding issue with the formatDate utility where UTC was incorrectly used in local time contexts. The updated logic now correctly handles daylight saving time transitions, and tests were added to ensure coverage of edge cases around DST boundaries.
+This PR adds a preview deployment workflow for changes pushed to the main branch. It introduces three new jobs—base, website, and blog preview deployments—with concurrency controls and GitHub notification steps. These changes enable better staging verification and streamline the CI/CD flow.
 
 ---
-EXAMPLE 3 (Large Infra Refactor)
+❌ **BAD EXAMPLE** (Shallow, verbose, file-based):
 
-PR Title: Refactor build pipeline for modular deployments  
-Files Changed: ci/, docker/, scripts/, config/, 30+ files total  
-Commit Messages: Split monolith deploy, add microservice configs, update CI  
-Diff Summary: Introduced per-service Dockerfiles, split CI jobs, rewrote deploy scripts
-
-Major refactor of the deployment pipeline to support modular, service-specific deployments. Dockerfiles and deployment scripts were split by service, enabling independent builds and faster iteration. CI configuration was restructured to parallelize build/test/deploy jobs. These changes lay the groundwork for future microservice scalability and deployment automation.
-
+This PR titled "ci: add preview on main" changes .github/workflows/ci.yml and adds preview steps to the CI pipeline. This is done to allow previewing changes before they go to production and improve the development process overall.
 ---
 
-Now, summarize the following pull request:
+Now, summarize this pull request, let's think step by step. First, we identify what kind of change this is (refactor, infra), then we explain what was added or modified. Finally, we mention what benefit or downstream impact this has.
 
-Files Changed:  
-${filesChanged}
-
-PR Title:  
+**PR Title:**  
 ${prTitle}
 
-PR Description:  
+**PR Description:**  
 ${prDescription}
 
-Commit Messages:  
+**Files Changed:**  
+${filesChanged}
+
+**Commit Messages:**  
 ${commitMessages}
 
-Code Diff Summary:  
+**Code Diff Summary:**  
 ${diffSummary}
 
-
-
-### Good example 
-
-## Add Preview Deployment Workflow for Main Branch
-
-This PR adds a preview deployment workflow that automatically runs when changes are pushed to the main branch. The implementation includes:
-
-- Added three new preview deployment jobs to the CI workflow:
-  - `preview-deployment` - Base preview deployment that runs after the mergeable check
-  - `www-preview-deployment` - Website preview that depends on the base preview
-  - `blog-preview-deployment` - Blog preview that depends on the base preview
-
-- Created a new workflow file `on-workflow-call-preview-deployment.yml` that:
-  - Runs in the preview environment
-  - Sends a GitHub notification when preview deployment starts
-  - Includes concurrency controls to prevent multiple simultaneous deployments
-  - Outputs deployment status messages
-
-These preview deployments allow the team to verify changes in a staging environment before they reach production, improving the overall deployment process.
-
-AI: I've removed the summary heading and focused on describing the specific changes made to the workflow files.
-
-
-
-### Bad example
-
-This PR titled "ci: add preview on main" makes changes to the .github/workflows/ci.yml and .github/workflows/on-workflow-call-preview-deployment.yml files. The main purpose of this PR is to add a preview deployment step to the CI workflow when changes are made to the main branch.
-
-The changes were made to enhance the development process by providing a preview of the main branch deployment before finalizing the changes. This can help catch any issues or bugs early on and ensure a smoother deployment process.
-
-Overall, this PR introduces a new step in the CI workflow to improve the development and deployment process for the project.
-
-Files Changed
-.github/workflows/ci.yml
-.github/workflows/on-workflow-call-preview-deployment.yml
-
-
-
-Write a summary that fits the level of complexity. Be thorough when needed, concise when appropriate. Use plain, professional language. Start below:
+Start your summary below:
 `;
 }
+
+const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
+const OPENAI_API_MODEL = core.getInput("OPENAI_API_MODEL") ?? "gpt-4o";
+
+const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 export async function getAISummary(prompt: string): Promise<string | null> {
   try {
@@ -133,7 +68,7 @@ export async function getAISummary(prompt: string): Promise<string | null> {
       model: OPENAI_API_MODEL,
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
-      max_tokens: MAX_TOKENS,
+      max_tokens: 4000,
       seed: 69,
     });
     const content = response.choices[0].message?.content?.trim() ?? "";
