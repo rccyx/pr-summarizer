@@ -17,15 +17,13 @@ export async function summarizeChanges(
     diffSummary += `${file.to || "unknown file"}: ${file.chunks.length} change(s) detected.\n`;
   }
 
-  const prompt = createSummaryPrompt(
+  const summary = await getAISummary({
     filesChanged,
-    prDetails.title,
-    prDetails.description,
+    prTitle: prDetails.title,
+    prDescription: prDetails.description,
     commitMessages,
-    diffSummary
-  );
-
-  const summary = await getAISummary(prompt);
+    diffSummary,
+  });
 
   if (!summary) return null;
 
