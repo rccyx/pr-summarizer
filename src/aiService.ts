@@ -137,3 +137,126 @@ export async function getAISummary({
     return null;
   }
 }
+
+const goodExample = `
+This pull request introduces new features related to tRPC in the blog application, focusing on enhancing blog post management capabilities. The changes span various areas of the codebase, including package.json, page components, API routes, context setup, models, services, and utilities. The PR adds functionalities for viewing lists of posts, inspecting individual post details, and creating new posts. It also improves data fetching, error handling, deprecation warnings, query client implementation, and integrates additional libraries like superjson and dinero.js.
+
+The goal of these changes is to significantly expand the functionality of the blog application by introducing tRPC capabilities and enhancing blog post management features. This aims to improve the user experience, making the blog system more robust and efficient. The PR lays the groundwork for a more feature-rich and reliable blogging experience.
+
+In summary, this PR adds tRPC integration, enhances data fetching, improves error handling, and updates dependencies in the blog application, setting the stage for a more advanced and reliable blogging platform. The changes affect a wide range of files across the codebase, from page components to server models and services, demonstrating a comprehensive update to the blog application's functionality and architecture.
+
+This pull request introduces tRPC integration to the blog application, replacing the direct MdxService implementation with a more robust server-client architecture. The changes implement a complete tRPC setup with client, server, context, and provider components to handle blog post data fetching.
+
+Key improvements include:
+
+Added tRPC router, procedures, and API endpoint for blog post operations
+Migrated from direct file system access to tRPC-based data fetching
+Implemented proper data validation with Zod schemas for posts and metadata
+Added server-side and client-side tRPC clients with proper typing
+Created integration tests for the new tRPC endpoints
+Enhanced error handling with better Sentry integration
+Added CI workflow naming conventions documentation
+The PR also includes dependency updates, adding support for libraries like superjson, dinero.js, and the TanStack Query (React Query) for state management. Error handling has been improved throughout the application with better Sentry integration and more consistent error reporting patterns.
+
+The architecture changes provide a more maintainable and type-safe approach to data fetching in the blog application, with clear separation between server and client code while maintaining full type safety across the boundary.
+
+Files Changed
+.cursor/rules/ci.mdc
+.github/workflows/README.md
+apps/blog/instrumentation.ts
+apps/blog/package.json
+apps/blog/src/app/(pages)/[post]/page.tsx
+apps/blog/src/app/(pages)/tag/[tag]/page.tsx
+apps/blog/src/app/api/trpc/[trpc]/route.ts
+apps/blog/src/app/components/pages/[post]/components/BlogPostData.tsx
+apps/blog/src/app/components/pages/[post]/index.tsx
+apps/blog/src/app/components/pages/[tag]/index.tsx
+apps/blog/src/app/components/pages/home/components/BlogCards.tsx
+apps/blog/src/app/components/pages/home/index.tsx
+apps/blog/src/app/components/posts/components/Postcard.tsx
+apps/blog/src/app/components/posts/index.tsx
+apps/blog/src/app/layout.tsx
+/dev/null
+/dev/null
+/dev/null
+apps/blog/src/server/models/index.ts
+apps/blog/src/server/models/post/dtos.ts
+apps/blog/src/server/models/post/index.ts
+apps/blog/src/server/models/post/ros.ts
+apps/blog/src/server/router.ts
+apps/blog/src/server/routes/post.ts
+apps/blog/src/server/services/blog/index.ts
+apps/blog/src/server/services/index.ts
+apps/blog/src/trpc/client.ts
+apps/blog/src/trpc/context.ts
+apps/blog/src/trpc/provider.tsx
+apps/blog/src/trpc/query-client.ts
+apps/blog/src/trpc/server.ts
+apps/blog/src/trpc/transformer.ts
+apps/blog/src/trpc/trpc.ts
+apps/blog/test/integration/blog.test.ts
+apps/blog/vitest.config.ts
+apps/www/instrumentation.ts
+apps/www/src/app/components/pages/contact/index.tsx
+packages/env/index.ts
+packages/observabiliy/src/log.ts
+packages/observabiliy/src/sentry/nextJs/captureException.ts
+packages/observabiliy/src/sentry/nextJs/index.ts
+pnpm-lock.yaml
+pnpm-workspace.yaml
+tooling/vitest/base.ts
+`;
+
+const badExample = `
+This pull request introduces new features related to tRPC in the blog application, focusing on enhancing blog post management capabilities. The changes span various areas of the codebase, including package.json, page components, API routes, context setup, models, services, and utilities. The PR adds functionalities for viewing lists of posts, inspecting individual post details, and creating new posts. It also improves data fetching, error handling, deprecation warnings, query client implementation, and integrates additional libraries like superjson and dinero.js.
+
+The goal of these changes is to significantly expand the functionality of the blog application by introducing tRPC capabilities and enhancing blog post management features. This aims to improve the user experience, making the blog system more robust and efficient. The PR lays the groundwork for a more feature-rich and reliable blogging experience.
+
+In summary, this PR adds tRPC integration, enhances data fetching, improves error handling, and updates dependencies in the blog application, setting the stage for a more advanced and reliable blogging platform. The changes affect a wide range of files across the codebase, from page components to server models and services, demonstrating a comprehensive update to the blog application's functionality and architecture.
+
+Files Changed
+.cursor/rules/ci.mdc
+.github/workflows/README.md
+apps/blog/instrumentation.ts
+apps/blog/package.json
+apps/blog/src/app/(pages)/[post]/page.tsx
+apps/blog/src/app/(pages)/tag/[tag]/page.tsx
+apps/blog/src/app/api/trpc/[trpc]/route.ts
+apps/blog/src/app/components/pages/[post]/components/BlogPostData.tsx
+apps/blog/src/app/components/pages/[post]/index.tsx
+apps/blog/src/app/components/pages/[tag]/index.tsx
+apps/blog/src/app/components/pages/home/components/BlogCards.tsx
+apps/blog/src/app/components/pages/home/index.tsx
+apps/blog/src/app/components/posts/components/Postcard.tsx
+apps/blog/src/app/components/posts/index.tsx
+apps/blog/src/app/layout.tsx
+/dev/null
+/dev/null
+/dev/null
+apps/blog/src/server/models/index.ts
+apps/blog/src/server/models/post/dtos.ts
+apps/blog/src/server/models/post/index.ts
+apps/blog/src/server/models/post/ros.ts
+apps/blog/src/server/router.ts
+apps/blog/src/server/routes/post.ts
+apps/blog/src/server/services/blog/index.ts
+apps/blog/src/server/services/index.ts
+apps/blog/src/trpc/client.ts
+apps/blog/src/trpc/context.ts
+apps/blog/src/trpc/provider.tsx
+apps/blog/src/trpc/query-client.ts
+apps/blog/src/trpc/server.ts
+apps/blog/src/trpc/transformer.ts
+apps/blog/src/trpc/trpc.ts
+apps/blog/test/integration/blog.test.ts
+apps/blog/vitest.config.ts
+apps/www/instrumentation.ts
+apps/www/src/app/components/pages/contact/index.tsx
+packages/env/index.ts
+packages/observabiliy/src/log.ts
+packages/observabiliy/src/sentry/nextJs/captureException.ts
+packages/observabiliy/src/sentry/nextJs/index.ts
+pnpm-lock.yaml
+pnpm-workspace.yaml
+tooling/vitest/base.ts
+`;

@@ -6,7 +6,10 @@ export async function summarizeChanges(
   parsedDiff: File[],
   prDetails: PRDetails
 ): Promise<string | null> {
-  const filesChanged = parsedDiff.map((file) => file.to ?? "").join(", ");
+  const filesChanged = parsedDiff
+    .filter((file) => file.to !== "/dev/null")
+    .map((file) => file.to ?? "")
+    .join(", ");
 
   const commitMessages = prDetails.commits
     .map((c) => `- ${c.message}`)
