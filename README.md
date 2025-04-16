@@ -1,6 +1,6 @@
 # AI PR Summarizer
 
-Instead of setting up heavy integrations with tools like Graphite or Coderabbit, this action generates a concise summary of pull request changes. It's lightweight, easy to set up, and serves as a quick way to review the essence of changes made in a PR.
+This action generates a concise summary of pull request changes. It's lightweight, fast to set up, and outputs high-quality technical summaries that help reviewers instantly grasp what changed and why.
 
 ## Setup
 
@@ -64,4 +64,5 @@ The `override_summary` parameter controls how the summary is added when using `o
 - `false`: The new summary is appended to the existing PR description
 
 ## License
+
 [MIT](/license)

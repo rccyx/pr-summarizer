@@ -68,7 +68,7 @@ Cleaned up payment code. Broke it up a bit. Should be easier to maintain now.
 
 ---
 
-Now, using the following inputs, generate a high-quality summary, think step by step for this and no need to conclude when you are done, just say what's needed:
+Now, using the following inputs, generate a high-quality summary, think step by step for this and no need to conclude at the end saying "Overall this PR..." when you are done, just say what's needed:
 
 **PR Title:**  
 ${prTitle}

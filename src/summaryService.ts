@@ -39,7 +39,10 @@ ${summary
   .join("\n\n")}
 
 ### Files Changed
-${parsedDiff.map((file) => `- \`${file.to ?? "unknown file"}\``).join("\n")}`;
+${parsedDiff
+  .filter((file) => file.to !== "/dev/null")
+  .map((file) => `- \`${file.to ?? "unknown file"}\``)
+  .join("\n")}`;
 
   return formattedSummary;
 }
