@@ -62,3 +62,6 @@ The `override_summary` parameter controls how the summary is added when using `o
 
 - `true` (default): The new summary replaces any existing content in the PR description
 - `false`: The new summary is appended to the existing PR description
+
+## License
+[MIT](/license)
