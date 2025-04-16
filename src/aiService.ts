@@ -84,6 +84,45 @@ ${commitMessages}
 Code Diff Summary:  
 ${diffSummary}
 
+
+
+### Good example 
+
+## Add Preview Deployment Workflow for Main Branch
+
+This PR adds a preview deployment workflow that automatically runs when changes are pushed to the main branch. The implementation includes:
+
+- Added three new preview deployment jobs to the CI workflow:
+  - `preview-deployment` - Base preview deployment that runs after the mergeable check
+  - `www-preview-deployment` - Website preview that depends on the base preview
+  - `blog-preview-deployment` - Blog preview that depends on the base preview
+
+- Created a new workflow file `on-workflow-call-preview-deployment.yml` that:
+  - Runs in the preview environment
+  - Sends a GitHub notification when preview deployment starts
+  - Includes concurrency controls to prevent multiple simultaneous deployments
+  - Outputs deployment status messages
+
+These preview deployments allow the team to verify changes in a staging environment before they reach production, improving the overall deployment process.
+
+AI: I've removed the summary heading and focused on describing the specific changes made to the workflow files.
+
+
+
+### Bad example
+
+This PR titled "ci: add preview on main" makes changes to the .github/workflows/ci.yml and .github/workflows/on-workflow-call-preview-deployment.yml files. The main purpose of this PR is to add a preview deployment step to the CI workflow when changes are made to the main branch.
+
+The changes were made to enhance the development process by providing a preview of the main branch deployment before finalizing the changes. This can help catch any issues or bugs early on and ensure a smoother deployment process.
+
+Overall, this PR introduces a new step in the CI workflow to improve the development and deployment process for the project.
+
+Files Changed
+.github/workflows/ci.yml
+.github/workflows/on-workflow-call-preview-deployment.yml
+
+
+
 Write a summary that fits the level of complexity. Be thorough when needed, concise when appropriate. Use plain, professional language. Start below:
 `;
 }
@@ -93,8 +132,9 @@ export async function getAISummary(prompt: string): Promise<string | null> {
     const response = await openai.chat.completions.create({
       model: OPENAI_API_MODEL,
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
+      temperature: 0.7,
       max_tokens: MAX_TOKENS,
+      seed: 69,
     });
     const content = response.choices[0].message?.content?.trim() ?? "";
     return content ?? null;
