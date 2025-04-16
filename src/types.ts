@@ -5,8 +5,8 @@ export interface PRDetails {
   title: string;
   description: string;
   author: string;
-  commits: Array<{
+  commits: {
     sha: string;
     message: string;
-  }>;
+  }[];
 }
