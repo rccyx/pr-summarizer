@@ -2,6 +2,8 @@
 
 This action generates a concise summary of pull request changes. It's lightweight, fast to set up, and outputs high-quality technical summaries that help reviewers instantly grasp what changed and why.
 
+![image](https://github.com/user-attachments/assets/fb234a5e-9348-4f82-8afb-1b452bec2bba)
+
 ## Setup
 
 Add it as an action, for example to `.github/workflows/summarize.yml`:
