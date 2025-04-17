@@ -44,24 +44,28 @@ ${summary
 ### Files Changed
 ${parsedDiff
   .map((file) => {
-    if (file.deleted) {
-      // deleted
-      return `- \`${file.from ?? "unknown file"}\` (deleted)`;
-    } else if (file.new) {
-      // new
-      return `- \`${file.to ?? "unknown file"}\` (new)`;
-    } else if (file.to && file.to !== "/dev/null") {
-      // renamed
-      return `- \`${file.from ?? "unknown"}\` ➜ \`${file.to ?? "unknown"}\` (renamed)`;
-    } else if (file.to && file.to !== "/dev/null") {
-      // modified
-      return `- \`${file.to}\` (modified)`;
-    } else {
-      return null;
+    // Check for deleted files first
+    if (file.to === "/dev/null") {
+      return `- \`${file.from}\` 🗑️ (deleted)`;
     }
+    // Check for new files
+    if (file.from === "/dev/null") {
+      return `- \`${file.to}\` ✨ (new)`;
+    }
+    // Check for renamed files
+    if (file.from && file.to && file.from !== file.to) {
+      return `- \`${file.from}\` ➜ \`${file.to}\` 📝 (renamed)`;
+    }
+    // Modified files
+    if (file.to) {
+      return `- \`${file.to}\` 📝 (modified)`;
+    }
+    return null;
   })
   .filter(Boolean)
-  .join("\n")}`;
+  .join("\n")
+  // Remove any lines containing /dev/null
+  .replace(/^.*\/dev\/null.*$/gm, "")}`;
 
   return formattedSummary;
 }
