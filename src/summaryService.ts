@@ -7,8 +7,12 @@ export async function summarizeChanges(
   prDetails: PRDetails
 ): Promise<string | null> {
   const filesChanged = parsedDiff
-    .filter((file) => file.to !== "/dev/null")
-    .map((file) => file.to ?? "")
+    .map((file) => {
+      if (file.deleted) return `${file.from} (deleted)`;
+      if (file.new) return `${file.to} (new)`;
+      return file.to ?? "";
+    })
+    .filter(Boolean)
     .join(", ");
 
   const commitMessages = prDetails.commits
@@ -17,7 +21,9 @@ export async function summarizeChanges(
 
   let diffSummary = "";
   for (const file of parsedDiff) {
-    diffSummary += `${file.to || "unknown file"}: ${file.chunks.length} change(s) detected.\n`;
+    const status = file.deleted ? "deleted" : file.new ? "new" : "modified";
+    const path = file.deleted ? file.from : file.to;
+    diffSummary += `${path || "unknown file"} (${status}): ${file.chunks.length} change(s) detected.\n`;
   }
 
   const summary = await getAISummary({
@@ -40,8 +46,12 @@ ${summary
 
 ### Files Changed
 ${parsedDiff
-  .filter((file) => file.to !== "/dev/null")
-  .map((file) => `- \`${file.to ?? "unknown file"}\``)
+  .map((file) => {
+    if (file.deleted) return `- \`${file.from}\` 🗑️ (deleted)`;
+    if (file.new) return `- \`${file.to}\` ✨ (new)`;
+    return `- \`${file.to}\` 📝 (modified)`;
+  })
+  .filter(Boolean)
   .join("\n")}`;
 
   return formattedSummary;
