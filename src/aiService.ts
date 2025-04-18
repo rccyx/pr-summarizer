@@ -68,7 +68,7 @@ Cleaned up payment code. Broke it up a bit. Should be easier to maintain now.
 
 ---
 
-Now, using the following inputs, generate a high-quality summary, think step by step for this and no need to conclude at the end saying "Overall this PR..." when you are done, just say what's needed:
+This is the current information about the PR at your disposal:
 
 **PR Title:**  
 ${prTitle}
@@ -85,7 +85,7 @@ ${commitMessages}
 **Code Diff Summary:**  
 ${diffSummary}
 
----
+Now, generate a high-quality summary, think step by step for this and no need to conclude at the end saying "Overall this PR..." when you are done, just say what's needed.
 
 Begin your summary below:
 `;
