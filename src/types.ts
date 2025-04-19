@@ -10,3 +10,5 @@ export interface PRDetails {
     message: string;
   }[];
 }
+
+export type Optional<T> = T | null;

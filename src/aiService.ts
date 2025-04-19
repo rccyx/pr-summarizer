@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import * as core from "@actions/core";
 import type { Optional } from "ts-roids";
 
-export function createSummaryPrompt(
+function createSummaryPrompt(
   filesChanged: string,
   prTitle: string,
   prDescription: string,

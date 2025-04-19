@@ -5,6 +5,7 @@ import { minimatch } from "minimatch";
 
 import { getPRDetails, createComment, getDiff } from "./githubService";
 import { summarizeChanges } from "./summaryService";
+import { Optional } from "./types";
 
 async function main() {
   try {
@@ -13,9 +14,9 @@ async function main() {
     const prDetails = await getPRDetails();
     core.info(`Analyzing PR #${prDetails.pull_number}: ${prDetails.title}`);
 
-    let diff: string | null;
+    let diff: Optional<string>;
     const eventData = JSON.parse(
-      readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
+      readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")
     );
 
     if (eventData.action === "opened" || eventData.action === "synchronize") {
@@ -48,7 +49,7 @@ async function main() {
 
     const summary = await summarizeChanges(filteredDiff, prDetails);
     if (summary) {
-      const ownerType = core.getInput("owner") || "bot";
+      const ownerType = core.getInput("owner") ?? "bot";
       const useAuthorIdentity = ownerType === "author";
 
       await createComment(
