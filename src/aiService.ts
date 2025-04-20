@@ -14,20 +14,15 @@ function createForensicsPrompt(
 ): { prompt: { system: string; user: string } } {
   const system = `You are a forensic code analyst specializing in PR history reconstruction.
 You analyze commit patterns, diffs, and file changes to create validated change timelines.
-You think systematically and focus on concrete evidence, never assuming or inferring without proof.`;
+You think systematically and focus on concrete evidence, never assuming or inferring without proof.
+You must return your analysis in valid JSON format.`;
 
   const user = `Analyze this PR's history to create a validated timeline of changes.
-
-Focus on:
-- Tools/modules added then deleted (to be excluded from summary)
-- Refactorings (renames, moves)
-- Final state validation
-- Contradiction detection
-
-Output Format:
-1. Timeline of changes with evidence
-2. List of validated final state changes
-3. List of excluded/reverted changes
+Return your analysis in the following JSON format:
+{
+  "timeline": "string describing the timeline of changes",
+  "validatedChanges": ["array of strings describing validated changes"]
+}
 
 PR Information:
 Commit Messages:
@@ -166,9 +161,19 @@ export async function getAISummary({
       seed: 69,
     });
 
-    const forensicsTrace: ForensicsTrace = JSON.parse(
-      forensicsResponse.choices[0].message?.content?.trim() ?? "{}"
-    );
+    let forensicsTrace: ForensicsTrace;
+    try {
+      forensicsTrace = JSON.parse(
+        forensicsResponse.choices[0].message?.content?.trim() ?? "{}"
+      );
+    } catch (parseError) {
+      // Fallback to empty structure if parsing fails
+      forensicsTrace = {
+        timeline: "Unable to parse timeline",
+        validatedChanges: [],
+      };
+      core.warning(`Failed to parse forensics response: ${parseError}`);
+    }
 
     // Step 2: Generate Summary
     const summaryPrompt = createSummaryPromptV2(
