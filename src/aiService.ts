@@ -3,7 +3,13 @@ import * as core from "@actions/core";
 import type { Optional } from "ts-roids";
 
 interface ForensicsTrace {
-  timeline: string;
+  timeline: {
+    phase: string;
+    goal: string;
+    changes: string[];
+  }[];
+  modulesTouched: string[];
+  notablePatterns: string[];
   validatedChanges: string[];
 }
 
@@ -20,8 +26,12 @@ You must return your analysis in valid JSON format.`;
   const user = `Analyze this PR's history to create a validated timeline of changes.
 Return your analysis in the following JSON format:
 {
-  "timeline": "string describing the timeline of changes",
-  "validatedChanges": ["array of strings describing validated changes"]
+  "timeline": [
+    { "phase": "string", "goal": "string", "changes": ["string"] }
+  ],
+  "modulesTouched": ["string"],
+  "notablePatterns": ["string"],
+  "validatedChanges": ["string"]
 }
 
 PR Information:
@@ -43,83 +53,38 @@ function createSummaryPromptV2(
   diffSummary: string,
   forensicsTrace: ForensicsTrace
 ): { prompt: { system: string; user: string } } {
-  const system = `You are a senior staff-level code review assistant integrated into CI/CD pipelines. 
-You summarize pull requests for stakeholders across engineering, SRE, and product teams. 
-Your output informs changelogs, release notes, technical documentation, and review prioritization.
-You think like an engineering lead: you understand architecture, care about why code changes, 
-and write with precision and purpose. You never assume or guess; omit anything unclear.
+  const system = `You are a senior infrastructure engineer writing a high-quality PR summary. 
+You focus on architecture, implementation rationale, and change risk. 
+You write like you're explaining this PR to another engineer in your team during review. 
+Your writing is clear, precise, and reads naturally — never robotic or templated.`;
 
-You must follow this priority when resolving conflicts in information:
-1. Final code diff summary (truth source)
-2. Validated forensic trace (historical context)
-3. PR title and description (intent only)
-4. Ignore commit messages unless reflected in the diff or validated trace`;
+  const timelineText = forensicsTrace.timeline
+    .map((t) => `- [${t.phase}] ${t.goal}: ${t.changes.join(", ")}`)
+    .join("\n");
 
-  const user = `You are tasked with writing a high-quality summary of a pull request.
-Think like a tech lead reviewing this PR in a real-world codebase.
+  const user = `You are tasked with writing a high-quality narrative summary of a pull request for engineering leadership. 
+Do not use sections, bullet points, or headers. Write it as a cohesive, technical paragraph that flows logically and reads like a smart engineer explaining the change to another one.
 
-Follow this step-by-step structure:
+Your goal is to answer:
+- What problem does this PR solve?
+- How was it solved, architecturally?
+- What files/modules were affected, and how do they relate?
+- Were there any key patterns, migrations, or risks?
+- Is there downstream or infra impact?
 
-1. **State the purpose**: What problem does this solve or what goal does it achieve?
-2. **Explain the how**: Describe implementation details at the architectural or module level (not per-file). Include patterns, decisions, or new abstractions.
-3. **Call out important considerations**:
-   - Breaking changes?
-   - Migration steps?
-   - Infra/CI impact?
-   - Dependencies or downstream effects?
+Use the forensics timeline and diff summary as your main source of truth. The PR description provides context — use it to inform tone, not facts.
 
-Write in a professional tone. Be concise but informative. Avoid filler words, repetition, or vague phrasing.
+PR Title: ${prTitle}
 
----
+PR Description: ${prDescription}
 
-### ✅ GOOD OUTPUT EXAMPLES
+Code Diff Summary: ${diffSummary}
 
-**Feature**  
-Adds a project tagging system to support multi-tag filtering in search and dashboard views. Introduces a 'TagManager' utility, updates the 'ProjectList' query, and adds UI components for tag controls.
+Validated Change Timeline: \n${timelineText}
 
-**Bugfix**  
-Resolves a bug where deleted users still appeared in activity logs. The fix updates the log serializer to check soft-delete flags before rendering user references.
+Touched Modules: ${forensicsTrace.modulesTouched.join(", ")}
 
-**Refactor**  
-Splits the monolithic payment handler into 'ChargeProcessor', 'RefundProcessor', and 'PaymentRouter'. This modularization simplifies future payment method integrations and improves test coverage.
-
-**Infra**  
-Introduces a GitHub Actions cache layer for pnpm dependencies. This reduces CI build time by 40% and avoids redundant installations across workflow jobs.
-
----
-
-### ❌ BAD OUTPUT EXAMPLES
-
-**Bugfix**  
-Fixes an issue in logs. Now deleted users don't show up. Just checks for deleted flag.
-
-**Feature**  
-Added tags to projects. You can search with them. UI shows tags.
-
-**Refactor**  
-Cleaned up payment code. Broke it up a bit. Should be easier to maintain now.
-
----
-
-This is the current information about the PR at your disposal:
-
-**PR Title:**  
-${prTitle}
-
-**PR Description:**  
-${prDescription}
-
-**Final Code Diff Summary:**  
-${diffSummary}
-
-**Validated Change Timeline (from Forensics):**  
-${forensicsTrace.timeline}
-
-**Excluded/Reverted Changes (DO NOT MENTION):**
-${forensicsTrace.validatedChanges.join("\n")}
-
-Now, generate a high-quality summary. Think step by step and do not conclude with phrases like "Overall this PR...". Focus on precision and clarity.
-Begin your summary below:`;
+Identified Patterns: ${forensicsTrace.notablePatterns.join(", ")}`;
 
   return { prompt: { system, user } };
 }
@@ -143,19 +108,19 @@ export async function getAISummary({
   diffSummary: string;
 }): Promise<Optional<string>> {
   try {
-    // Step 1: Forensics Analysis
     const forensicsPrompt = createForensicsPrompt(
       commitMessages,
       diffSummary,
       filesChanged
     );
+
     const forensicsResponse = await openai.chat.completions.create({
       model: OPENAI_API_MODEL,
       messages: [
         { role: "system", content: forensicsPrompt.prompt.system },
         { role: "user", content: forensicsPrompt.prompt.user },
       ],
-      temperature: 0.3, // Lower temperature for analytical task
+      temperature: 0.3,
       max_tokens: 2000,
       seed: 69,
     });
@@ -166,9 +131,10 @@ export async function getAISummary({
         forensicsResponse.choices[0].message?.content?.trim() ?? "{}"
       );
     } catch (parseError) {
-      // Fallback to empty structure if parsing fails
       forensicsTrace = {
-        timeline: "Unable to parse timeline",
+        timeline: [],
+        modulesTouched: [],
+        notablePatterns: [],
         validatedChanges: [],
       };
       core.warning(`Failed to parse forensics response: ${parseError}`);

@@ -41,7 +41,7 @@ ${summary
   .filter((line) => line)
   .join("\n\n")}
 
-### Files Changed
+#### Files Changed
 ${parsedDiff
   .map((file) => {
     // Check for deleted files first
