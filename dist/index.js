@@ -36241,10 +36241,9 @@ Think like a tech lead reviewing this PR in a real-world codebase.
 
 Follow this step-by-step structure:
 
-1. **Classify the type of change**: Choose from one of these categories: "Feature", "Bugfix", "Refactor", "Infra", "Docs", or "Chore".
-2. **State the purpose**: What problem does this solve or what goal does it achieve?
-3. **Explain the how**: Describe implementation details at the architectural or module level (not per-file). Include patterns, decisions, or new abstractions.
-4. **Call out important considerations**:
+1. **State the purpose**: What problem does this solve or what goal does it achieve?
+2. **Explain the how**: Describe implementation details at the architectural or module level (not per-file). Include patterns, decisions, or new abstractions.
+3. **Call out important considerations**:
    - Breaking changes?
    - Migration steps?
    - Infra/CI impact?
