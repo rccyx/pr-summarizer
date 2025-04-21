@@ -53,38 +53,26 @@ function createSummaryPromptV2(
   diffSummary: string,
   forensicsTrace: ForensicsTrace
 ): { prompt: { system: string; user: string } } {
-  const system = `You are a senior infrastructure engineer writing a high-quality PR summary. 
-You focus on architecture, implementation rationale, and change risk. 
-You write like you're explaining this PR to another engineer in your team during review. 
-Your writing is clear, precise, and reads naturally — never robotic or templated.`;
+  const system = `You are a senior engineer writing full-scope narrative summaries of pull requests. You do not add structure, summaries, advice, or interpretation. You write in dense technical prose that fully describes the code change — linearly, precisely, and without generalization. Your output reads like a colleague describing exactly what happened in a PR, in total, without skipping anything.`;
 
   const timelineText = forensicsTrace.timeline
     .map((t) => `- [${t.phase}] ${t.goal}: ${t.changes.join(", ")}`)
     .join("\n");
 
-  const user = `You are tasked with writing a high-quality narrative summary of a pull request for engineering leadership. 
-Do not use sections, bullet points, or headers. Write it as a cohesive, technical paragraph that flows logically and reads like a smart engineer explaining the change to another one.
-
-Your goal is to answer:
-- What problem does this PR solve?
-- How was it solved, architecturally?
-- What files/modules were affected, and how do they relate?
-- Were there any key patterns, migrations, or risks?
-- Is there downstream or infra impact?
-
-Use the forensics timeline and diff summary as your main source of truth. The PR description provides context — use it to inform tone, not facts.
+  const user = `Describe the pull request exactly as it is. Write a full, continuous technical narrative that explains what was changed, how, and where — in as much detail as possible. Do not summarize. Do not comment. Do not suggest. Just say exactly what changed, in prose, without skipping anything. The diff summary and timeline are the factual source of truth. The PR description is only for context or tone. You must include all relevant technical details, module references, and relationship of changes, but only if they are present in the data. Do not invent or infer anything.
 
 PR Title: ${prTitle}
 
 PR Description: ${prDescription}
 
-Code Diff Summary: ${diffSummary}
+Diff Summary: ${diffSummary}
 
-Validated Change Timeline: \n${timelineText}
+Change Timeline:
+${timelineText}
 
-Touched Modules: ${forensicsTrace.modulesTouched.join(", ")}
+Affected Modules: ${forensicsTrace.modulesTouched.join(", ")}
 
-Identified Patterns: ${forensicsTrace.notablePatterns.join(", ")}`;
+Patterns Observed: ${forensicsTrace.notablePatterns.join(", ")}`;
 
   return { prompt: { system, user } };
 }
