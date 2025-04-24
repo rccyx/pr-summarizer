@@ -18,13 +18,11 @@ function createForensicsPrompt(
   diffSummary: string,
   filesChanged: string
 ): { prompt: { system: string; user: string } } {
-  const system = `You are a forensic code analyst specializing in PR history reconstruction.
-You analyze commit patterns, diffs, and file changes to create validated change timelines.
-You think systematically and focus on concrete evidence, never assuming or inferring without proof.
-You must return your analysis in valid JSON format.`;
+  const system = `You are a forensic software historian tasked with producing legally admissible reconstructions of pull request activity. Your mandate is to base your analysis strictly on commit messages, file changes, and diffs. You are not permitted to speculate or hallucinate. If something is not directly supported by the input, you must ignore it. The final product must be a structured JSON with explicitly validated claims. Every statement must be traceable to a specific diff or commit line. You operate under zero-trust assumptions, like a forensic auditor in a regulatory investigation.`;
 
-  const user = `Analyze this PR's history to create a validated timeline of changes.
-Return your analysis in the following JSON format:
+  const user = `Given the following pull request data, reconstruct the validated timeline of changes and categorize the scope and patterns of modifications.
+
+Your output MUST be valid JSON matching exactly this structure:
 {
   "timeline": [
     { "phase": "string", "goal": "string", "changes": ["string"] }
@@ -34,45 +32,66 @@ Return your analysis in the following JSON format:
   "validatedChanges": ["string"]
 }
 
-PR Information:
+Definitions:
+- "phase" groups changes chronologically (e.g., "initial setup", "refactoring", "final polishing").
+- "goal" describes the developer's intent inferred ONLY from commit messages or comments in code.
+- "changes" must describe technical changes with as much granularity as possible, citing functions or filenames if mentioned.
+- "modulesTouched" refers to logical units or directories (e.g., "auth", "frontend/hooks").
+- "notablePatterns" may include patterns like: repeated rename+refactor, file deletions with no replacement, large-scale regex rewrites, etc.
+- "validatedChanges" are changes confirmed explicitly by multiple independent signals in the diff and commit history.
+
+Use ONLY the data below. Do not introduce outside knowledge or assumptions.
+
+--- BEGIN PR DATA ---
+
 Commit Messages:
 ${commitMessages}
 
 Changed Files:
 ${filesChanged}
 
-Final Diff:
-${diffSummary}`;
+Diff Summary:
+${diffSummary}
+
+--- END PR DATA ---`;
 
   return { prompt: { system, user } };
 }
-
 function createSummaryPromptV2(
   prTitle: string,
   prDescription: string,
   diffSummary: string,
   forensicsTrace: ForensicsTrace
 ): { prompt: { system: string; user: string } } {
-  const system = `You are a senior engineer writing full-scope narrative summaries of pull requests. You do not add structure, summaries, advice, or interpretation. You write in dense technical prose that fully describes the code change — linearly, precisely, and without generalization. Your output reads like a colleague describing exactly what happened in a PR, in total, without skipping anything.`;
+  const system = `You are a technical explainer. You only produce direct prose explanations of software changes without any interpretative scaffolding, summarization, or simplification. You write as if reporting to an engineer who is debugging the repo two years later and needs exact descriptions of what was modified, where, and how — no assumptions, no analysis, only observable facts.`;
 
   const timelineText = forensicsTrace.timeline
-    .map((t) => `- [${t.phase}] ${t.goal}: ${t.changes.join(", ")}`)
-    .join("\n");
+    .map(
+      (t) =>
+        `Phase: ${t.phase}\nGoal: ${t.goal}\nChanges:\n- ${t.changes.join("\n- ")}`
+    )
+    .join("\n\n");
 
-  const user = `Describe the pull request exactly as it is. Write a full, continuous technical narrative that explains what was changed, how, and where — in as much detail as possible. Do not summarize. Do not comment. Do not suggest. Just say exactly what changed, in prose, without skipping anything. The diff summary and timeline are the factual source of truth. The PR description is only for context or tone. You must include all relevant technical details, module references, and relationship of changes, but only if they are present in the data. Do not invent or infer anything.
+  const user = `Describe exactly what changed in the pull request. Your description must be linear and match the sequence and scope in the timeline and diff.
+
+Only describe what is explicitly shown in the data. Do not summarize, interpret, infer, or editorialize. Your prose should read like:
+- "The function X was renamed to Y in file A.js."
+- "Lines initializing the Z handler were removed from B.ts."
+
+Use plain, granular, linear technical language. Do not refer to “commit”, “PR”, or “summary”. This is a factual report.
 
 PR Title: ${prTitle}
+PR Description (for tone/context only): ${prDescription}
 
-PR Description: ${prDescription}
-
-Diff Summary: ${diffSummary}
+Diff Summary:
+${diffSummary}
 
 Change Timeline:
 ${timelineText}
 
-Affected Modules: ${forensicsTrace.modulesTouched.join(", ")}
+Modules Touched: ${forensicsTrace.modulesTouched.join(", ")}
 
-Patterns Observed: ${forensicsTrace.notablePatterns.join(", ")}`;
+Observed Patterns: ${forensicsTrace.notablePatterns.join(", ")}`;
 
   return { prompt: { system, user } };
 }
