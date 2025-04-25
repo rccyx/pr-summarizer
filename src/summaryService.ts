@@ -41,7 +41,9 @@ ${summary
   .filter((line) => line)
   .join("\n\n")}
 
-#### Files Changed
+${
+  parsedDiff.map((file) => file.to).length > 3
+    ? `#### Files Changed
 ${parsedDiff
   .map((file) => {
     // Check for deleted files first
@@ -65,7 +67,10 @@ ${parsedDiff
   .filter(Boolean)
   .join("\n")
   // Remove any lines containing /dev/null
-  .replace(/^.*\/dev\/null.*$/gm, "")}`;
+  .replace(/^.*\/dev\/null.*$/gm, "")}`
+    : ""
+}
+`;
 
   return formattedSummary;
 }
