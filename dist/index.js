@@ -36296,13 +36296,29 @@ async function getAISummary({
     try {
       forensicsTrace = JSON.parse(forensicsResponse.choices[0].message?.content?.trim() ?? "{}");
     } catch (parseError) {
+      core2.warning(`Failed to parse forensics response: ${parseError}`);
       forensicsTrace = {
         timeline: [],
         modulesTouched: [],
         notablePatterns: [],
         validatedChanges: []
       };
-      core2.warning(`Failed to parse forensics response: ${parseError}`);
+    }
+    const isForensicsWeak = !forensicsTrace.timeline.length || !forensicsTrace.modulesTouched.length || !forensicsTrace.notablePatterns.length;
+    if (isForensicsWeak) {
+      core2.warning("Forensics output is weak, falling back to enriched summary mode.");
+      forensicsTrace = {
+        timeline: [
+          {
+            phase: "fallback",
+            goal: "summarize all available changes",
+            changes: [commitMessages, filesChanged, diffSummary]
+          }
+        ],
+        modulesTouched: [],
+        notablePatterns: [],
+        validatedChanges: []
+      };
     }
     const summaryPrompt = createSummaryPromptV2(prTitle, prDescription, diffSummary, forensicsTrace);
     const summaryResponse = await openai.chat.completions.create({
@@ -36311,7 +36327,7 @@ async function getAISummary({
         { role: "system", content: summaryPrompt.prompt.system },
         { role: "user", content: summaryPrompt.prompt.user }
       ],
-      temperature: 0.7,
+      temperature: 0.3,
       max_tokens: 2000,
       seed: 69
     });
@@ -36351,7 +36367,7 @@ ${summary.split(`
 
 `)}
 
-#### Files Changed
+${parsedDiff.map((file) => file.to).length > 3 ? `#### Files Changed
 ${parsedDiff.map((file) => {
     if (file.to === "/dev/null") {
       return `- \`${file.from}\` \uD83D\uDDD1️ (deleted)`;
@@ -36367,7 +36383,8 @@ ${parsedDiff.map((file) => {
     }
     return null;
   }).filter(Boolean).join(`
-`).replace(/^.*\/dev\/null.*$/gm, "")}`;
+`).replace(/^.*\/dev\/null.*$/gm, "")}` : ""}
+`;
   return formattedSummary;
 }
 

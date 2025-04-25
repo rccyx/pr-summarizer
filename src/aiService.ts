@@ -57,6 +57,7 @@ ${diffSummary}
 
   return { prompt: { system, user } };
 }
+
 function createSummaryPromptV2(
   prTitle: string,
   prDescription: string,
@@ -78,7 +79,7 @@ Only describe what is explicitly shown in the data. Do not summarize, interpret,
 - "The function X was renamed to Y in file A.js."
 - "Lines initializing the Z handler were removed from B.ts."
 
-Use plain, granular, linear technical language. Do not refer to “commit”, “PR”, or “summary”. This is a factual report.
+Use plain, granular, linear technical language. Do not refer to \u201ccommit\u201d, \u201cPR\u201d, or \u201csummary\u201d. This is a factual report.
 
 PR Title: ${prTitle}
 PR Description (for tone/context only): ${prDescription}
@@ -138,13 +139,36 @@ export async function getAISummary({
         forensicsResponse.choices[0].message?.content?.trim() ?? "{}"
       );
     } catch (parseError) {
+      core.warning(`Failed to parse forensics response: ${parseError}`);
       forensicsTrace = {
         timeline: [],
         modulesTouched: [],
         notablePatterns: [],
         validatedChanges: [],
       };
-      core.warning(`Failed to parse forensics response: ${parseError}`);
+    }
+
+    const isForensicsWeak =
+      !forensicsTrace.timeline.length ||
+      !forensicsTrace.modulesTouched.length ||
+      !forensicsTrace.notablePatterns.length;
+
+    if (isForensicsWeak) {
+      core.warning(
+        "Forensics output is weak, falling back to enriched summary mode."
+      );
+      forensicsTrace = {
+        timeline: [
+          {
+            phase: "fallback",
+            goal: "summarize all available changes",
+            changes: [commitMessages, filesChanged, diffSummary],
+          },
+        ],
+        modulesTouched: [],
+        notablePatterns: [],
+        validatedChanges: [],
+      };
     }
 
     const summaryPrompt = createSummaryPromptV2(
@@ -160,7 +184,7 @@ export async function getAISummary({
         { role: "system", content: summaryPrompt.prompt.system },
         { role: "user", content: summaryPrompt.prompt.user },
       ],
-      temperature: 0.7,
+      temperature: 0.3,
       max_tokens: 2000,
       seed: 69,
     });
