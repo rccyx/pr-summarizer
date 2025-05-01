@@ -33,13 +33,11 @@ export async function summarizeChanges(
 
   if (!summary) return null;
 
-  const formattedSummary = `## PR Summary
-
-${summary
-  .split("\n")
-  .map((line) => line.trim())
-  .filter((line) => line)
-  .join("\n\n")}
+  const formattedSummary = `${summary
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line)
+    .join("\n\n")}
 
 ${
   parsedDiff.map((file) => file.to).length > 3

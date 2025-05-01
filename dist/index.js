@@ -36201,73 +36201,39 @@ var openai_default = OpenAI;
 
 // src/aiService.ts
 var core2 = __toESM(require_core(), 1);
-function createForensicsPrompt(commitMessages, diffSummary, filesChanged) {
-  const system = `You are a forensic software historian tasked with producing legally admissible reconstructions of pull request activity. Your mandate is to base your analysis strictly on commit messages, file changes, and diffs. You are not permitted to speculate or hallucinate. If something is not directly supported by the input, you must ignore it. The final product must be a structured JSON with explicitly validated claims. Every statement must be traceable to a specific diff or commit line. You operate under zero-trust assumptions, like a forensic auditor in a regulatory investigation.`;
-  const user = `Given the following pull request data, reconstruct the validated timeline of changes and categorize the scope and patterns of modifications.
+function createRichSummaryPrompt(prTitle, prDescription, commitMessages, diffSummary) {
+  const system = `You are a senior code reviewer with deep architectural context. Your role is to reconstruct the full story of a pull request based on the diff. You think in steps. You write in paragraphs. You do not summarize. You do not guess. You narrate exactly what the diff shows in technical depth and sequence.
 
-Your output MUST be valid JSON matching exactly this structure:
-{
-  "timeline": [
-    { "phase": "string", "goal": "string", "changes": ["string"] }
-  ],
-  "modulesTouched": ["string"],
-  "notablePatterns": ["string"],
-  "validatedChanges": ["string"]
-}
+Below you will be given training examples. These examples include both good and bad outputs. Study them. Then use the same style to generate your own output.
 
-Definitions:
-- "phase" groups changes chronologically (e.g., "initial setup", "refactoring", "final polishing").
-- "goal" describes the developer's intent inferred ONLY from commit messages or comments in code.
-- "changes" must describe technical changes with as much granularity as possible, citing functions or filenames if mentioned.
-- "modulesTouched" refers to logical units or directories (e.g., "auth", "frontend/hooks").
-- "notablePatterns" may include patterns like: repeated rename+refactor, file deletions with no replacement, large-scale regex rewrites, etc.
-- "validatedChanges" are changes confirmed explicitly by multiple independent signals in the diff and commit history.
+You will receive a PR title, description, commit messages, and a diff summary. You must analyze the diff and write a **single long-form paragraph** that fully explains the change. The paragraph should feel like a developer explaining what they did to another engineer who needs to deeply understand the change.
 
-Use ONLY the data below. Do not introduce outside knowledge or assumptions.
+No markdown. No headers. No list items. No summaries. Just a long, coherent technical paragraph like the GOOD EXAMPLES.
 
---- BEGIN PR DATA ---
+BAD OUTPUT EXAMPLE:
+Refactored the data loader. Added async handling. Introduced cache. Fixed error handling. The new function improves performance. [BAD: These are sentence fragments. They lack structure, explanation, and flow.]
+
+GOOD OUTPUT EXAMPLE 1:
+The legacy synchronous data loading mechanism was removed and replaced with a new asynchronous abstraction that batches network requests to reduce latency and server strain. In place of the old \`loadData()\` call, the implementation now uses \`fetchAndCacheData()\`, which introduces client-side caching backed by a dedicated storage module. This enables the app to reuse previously fetched results, minimizing redundant calls. Additionally, error handling was made more robust through the use of a custom \`DataLoadError\` wrapper, allowing better diagnostics when failures occur mid-batch. Overall, the data layer is now more scalable, testable, and decoupled from immediate network response timing.
+
+GOOD OUTPUT EXAMPLE 2:
+User interaction telemetry was introduced across all major frontend handlers by injecting calls to a newly created \`trackUserAction()\` utility. Events such as button clicks, navigation triggers, and form submissions are now funneled into a structured logging system, with event types managed centrally via a new \`EventType\` enum. The telemetry logic has been abstracted into an \`AnalyticsClient\` to isolate transport details and prepare for potential vendor migration. This also enables mocking during unit tests, something that was not previously feasible when analytics logic was hardcoded inline. As a result, user behavior data is now collected systematically, in a format that is extensible and easy to maintain.
+
+GOOD OUTPUT EXAMPLE 3:
+The layout system has been refactored to adopt CSS Grid instead of the previous Flexbox structure. The markup in layout.tsx was rewritten to define named grid template areas, explicitly modeling structural regions such as header, sidebar, main content, and footer. Old utility classnames tied to Flexbox—like \`flex-row\`, \`justify-between\`, and \`items-center\`—were removed. This change introduces more control over layout composition and allows easier responsiveness tuning in future iterations. With this new structure, layout logic is clearer and better aligned with semantic HTML sections.
+
+Now do the same: write a long, single paragraph to explain the PR.`;
+  const user = `PR Title:
+${prTitle}
+
+PR Description:
+${prDescription}
 
 Commit Messages:
 ${commitMessages}
 
-Changed Files:
-${filesChanged}
-
 Diff Summary:
-${diffSummary}
-
---- END PR DATA ---`;
-  return { prompt: { system, user } };
-}
-function createSummaryPromptV2(prTitle, prDescription, diffSummary, forensicsTrace) {
-  const system = `You are a technical explainer. You only produce direct prose explanations of software changes without any interpretative scaffolding, summarization, or simplification. You write as if reporting to an engineer who is debugging the repo two years later and needs exact descriptions of what was modified, where, and how — no assumptions, no analysis, only observable facts.`;
-  const timelineText = forensicsTrace.timeline.map((t2) => `Phase: ${t2.phase}
-Goal: ${t2.goal}
-Changes:
-- ${t2.changes.join(`
-- `)}`).join(`
-
-`);
-  const user = `Describe exactly what changed in the pull request. Your description must be linear and match the sequence and scope in the timeline and diff.
-
-Only describe what is explicitly shown in the data. Do not summarize, interpret, infer, or editorialize. Your prose should read like:
-- "The function X was renamed to Y in file A.js."
-- "Lines initializing the Z handler were removed from B.ts."
-
-Use plain, granular, linear technical language. Do not refer to “commit”, “PR”, or “summary”. This is a factual report.
-
-PR Title: ${prTitle}
-PR Description (for tone/context only): ${prDescription}
-
-Diff Summary:
-${diffSummary}
-
-Change Timeline:
-${timelineText}
-
-Modules Touched: ${forensicsTrace.modulesTouched.join(", ")}
-
-Observed Patterns: ${forensicsTrace.notablePatterns.join(", ")}`;
+${diffSummary}`;
   return { prompt: { system, user } };
 }
 var OPENAI_API_KEY = core2.getInput("OPENAI_API_KEY");
@@ -36281,59 +36247,20 @@ async function getAISummary({
   prTitle
 }) {
   try {
-    const forensicsPrompt = createForensicsPrompt(commitMessages, diffSummary, filesChanged);
-    const forensicsResponse = await openai.chat.completions.create({
+    const { prompt } = createRichSummaryPrompt(prTitle, prDescription, commitMessages, diffSummary);
+    const response = await openai.chat.completions.create({
       model: OPENAI_API_MODEL,
       messages: [
-        { role: "system", content: forensicsPrompt.prompt.system },
-        { role: "user", content: forensicsPrompt.prompt.user }
+        { role: "system", content: prompt.system },
+        { role: "user", content: prompt.user }
       ],
       temperature: 0.3,
-      max_tokens: 2000,
+      max_tokens: 4096,
       seed: 69
     });
-    let forensicsTrace;
-    try {
-      forensicsTrace = JSON.parse(forensicsResponse.choices[0].message?.content?.trim() ?? "{}");
-    } catch (parseError) {
-      core2.warning(`Failed to parse forensics response: ${parseError}`);
-      forensicsTrace = {
-        timeline: [],
-        modulesTouched: [],
-        notablePatterns: [],
-        validatedChanges: []
-      };
-    }
-    const isForensicsWeak = !forensicsTrace.timeline.length || !forensicsTrace.modulesTouched.length || !forensicsTrace.notablePatterns.length;
-    if (isForensicsWeak) {
-      core2.warning("Forensics output is weak, falling back to enriched summary mode.");
-      forensicsTrace = {
-        timeline: [
-          {
-            phase: "fallback",
-            goal: "summarize all available changes",
-            changes: [commitMessages, filesChanged, diffSummary]
-          }
-        ],
-        modulesTouched: [],
-        notablePatterns: [],
-        validatedChanges: []
-      };
-    }
-    const summaryPrompt = createSummaryPromptV2(prTitle, prDescription, diffSummary, forensicsTrace);
-    const summaryResponse = await openai.chat.completions.create({
-      model: OPENAI_API_MODEL,
-      messages: [
-        { role: "system", content: summaryPrompt.prompt.system },
-        { role: "user", content: summaryPrompt.prompt.user }
-      ],
-      temperature: 0.3,
-      max_tokens: 2000,
-      seed: 69
-    });
-    return summaryResponse.choices[0].message?.content?.trim() ?? null;
+    return response.choices[0].message?.content?.trim() ?? null;
   } catch (error) {
-    core2.warning(`AI API Error: ${error instanceof Error ? error.message : String(error)}`);
+    core2.warning(`AI Summary Error: ${error instanceof Error ? error.message : String(error)}`);
     return null;
   }
 }
@@ -36360,9 +36287,7 @@ async function summarizeChanges(parsedDiff, prDetails) {
   });
   if (!summary)
     return null;
-  const formattedSummary = `## PR Summary
-
-${summary.split(`
+  const formattedSummary = `${summary.split(`
 `).map((line) => line.trim()).filter((line) => line).join(`
 
 `)}
