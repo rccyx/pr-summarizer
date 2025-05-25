@@ -1,5 +1,6 @@
 import { Optional } from "ts-roids";
 import OpenAI from "openai";
+import { createRichSummaryPrompt } from "./prompts";
 
 type OpenAIModel = "gpt-4o" | "gpt-3.5-turbo";
 
@@ -43,12 +44,11 @@ export class AiService {
   private getPrompt(input: PrData): {
     prompt: { system: string; user: string };
   } {
-    // TODO: actually read this from a file
-    return {
-      prompt: {
-        system: "",
-        user: "",
-      },
-    };
+    return createRichSummaryPrompt({
+      prTitle: input.prTitle,
+      prDescription: input.prDescription,
+      commitMessages: input.commitMessages,
+      diffSummary: input.diffSummary,
+    });
   }
 }
