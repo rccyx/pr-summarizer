@@ -4,7 +4,8 @@ import parseDiff from "parse-diff";
 import { minimatch } from "minimatch";
 
 import { getPRDetails, createComment, getDiff } from "./githubService";
-import { summarizeChanges } from "./summaryService";
+import { SummaryService } from "./services/summary";
+import { AiService } from "./services/ai";
 import { Optional } from "./types";
 
 async function main() {
@@ -47,7 +48,17 @@ async function main() {
       return !excludePatterns.some((pattern) => minimatch(filePath, pattern));
     });
 
-    const summary = await summarizeChanges(filteredDiff, prDetails);
+    const aiService = new AiService({
+      apiKey: core.getInput("OPENAI_API_KEY"),
+      model: core.getInput("OPENAI_API_MODEL"),
+    });
+
+    const summary = await SummaryService.summarize({
+      aiService,
+      parsedDiff: filteredDiff,
+      prDetails,
+    });
+
     if (summary) {
       const ownerType = core.getInput("owner") ?? "bot";
       const useAuthorIdentity = ownerType === "author";

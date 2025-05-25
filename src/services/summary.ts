@@ -4,7 +4,7 @@ import { Optional, PRDetails } from "../types";
 import type { AiService } from "./ai";
 
 export class SummaryService {
-  public async summarize({
+  public static async summarize({
     aiService,
     parsedDiff,
     prDetails,

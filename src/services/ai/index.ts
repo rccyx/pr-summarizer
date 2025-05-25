@@ -1,19 +1,17 @@
 import { Optional } from "ts-roids";
 import OpenAI from "openai";
 import { createRichSummaryPrompt } from "./prompts";
-import type { PrData } from "../../types/index
-
-type OpenAIModel = "gpt-4o" | "gpt-3.5-turbo";
+import type { PrData } from "../../types";
 
 export class AiService {
   private openai: OpenAI;
-  private model: OpenAIModel;
+  private model: string;
   constructor({
     apiKey,
     model = "gpt-4o",
   }: {
     apiKey: string;
-    model?: OpenAIModel;
+    model?: string;
   }) {
     this.openai = new OpenAI({ apiKey });
     this.model = model;
