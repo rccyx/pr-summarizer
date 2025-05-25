@@ -1,3 +1,11 @@
+export interface PrData {
+  commitMessages: string;
+  diffSummary: string;
+  filesChanged: string;
+  prDescription: string;
+  prTitle: string;
+}
+
 export interface PRDetails {
   owner: string;
   repo: string;

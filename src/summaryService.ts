@@ -1,10 +1,11 @@
 import { File } from "parse-diff";
-import { getAISummary } from "./aiService";
 import { Optional, PRDetails } from "./types";
+import { AiService } from "./services/ai";
 
 export async function summarizeChanges(
   parsedDiff: File[],
-  prDetails: PRDetails
+  prDetails: PRDetails,
+  aiService: AiService
 ): Promise<Optional<string>> {
   const changedFiles = parsedDiff.filter(
     (file) => file.to && file.to !== "/dev/null"
@@ -23,7 +24,7 @@ export async function summarizeChanges(
     diffSummary += `${fileName}: ${changes} change(s) detected.\n`;
   }
 
-  const summary = await getAISummary({
+  const summary = await aiService.getAiSummary({
     filesChanged,
     prTitle: prDetails.title,
     prDescription: prDetails.description,
