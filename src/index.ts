@@ -9,12 +9,13 @@ import { AiService } from "./services/ai";
 import { Optional } from "./types";
 
 async function main() {
+  core.info("Starting code summarization process...");
+
   const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
   const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
   const OPENAI_API_MODEL = core.getInput("OPENAI_API_MODEL");
-  try {
-    core.info("Starting code summarization process...");
 
+  try {
     const githubService = new GitHubService({
       GITHUB_TOKEN,
     });
@@ -55,13 +56,11 @@ async function main() {
       return !excludePatterns.some((pattern) => minimatch(filePath, pattern));
     });
 
-    const aiService = new AiService({
-      apiKey: OPENAI_API_KEY,
-      model: OPENAI_API_MODEL,
-    });
-
     const summary = await SummaryService.summarize({
-      aiService,
+      aiService: new AiService({
+        apiKey: OPENAI_API_KEY,
+        model: OPENAI_API_MODEL,
+      }),
       parsedDiff: filteredDiff,
       prDetails,
     });
