@@ -3,16 +3,23 @@ import { readFileSync } from "fs";
 import parseDiff from "parse-diff";
 import { minimatch } from "minimatch";
 
-import { getPRDetails, createComment, getDiff } from "./githubService";
+import { GitHubService } from "./services/github";
 import { SummaryService } from "./services/summary";
 import { AiService } from "./services/ai";
 import { Optional } from "./types";
 
 async function main() {
+  const GITHUB_TOKEN = core.getInput("GITHUB_TOKEN");
+  const OPENAI_API_KEY = core.getInput("OPENAI_API_KEY");
+  const OPENAI_API_MODEL = core.getInput("OPENAI_API_MODEL");
   try {
     core.info("Starting code summarization process...");
 
-    const prDetails = await getPRDetails();
+    const githubService = new GitHubService({
+      GITHUB_TOKEN,
+    });
+
+    const prDetails = await githubService.getPRDetails();
     core.info(`Analyzing PR #${prDetails.pull_number}: ${prDetails.title}`);
 
     let diff: Optional<string>;
@@ -21,7 +28,7 @@ async function main() {
     );
 
     if (eventData.action === "opened" || eventData.action === "synchronize") {
-      diff = await getDiff(
+      diff = await githubService.getDiff(
         prDetails.owner,
         prDetails.repo,
         prDetails.pull_number
@@ -49,8 +56,8 @@ async function main() {
     });
 
     const aiService = new AiService({
-      apiKey: core.getInput("OPENAI_API_KEY"),
-      model: core.getInput("OPENAI_API_MODEL"),
+      apiKey: OPENAI_API_KEY,
+      model: OPENAI_API_MODEL,
     });
 
     const summary = await SummaryService.summarize({
@@ -63,7 +70,7 @@ async function main() {
       const ownerType = core.getInput("owner") ?? "bot";
       const useAuthorIdentity = ownerType === "author";
 
-      await createComment(
+      await githubService.createComment(
         prDetails.owner,
         prDetails.repo,
         prDetails.pull_number,
