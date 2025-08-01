@@ -23,6 +23,11 @@ async function main() {
     const prDetails = await githubService.getPRDetails();
     core.info(`Analyzing PR #${prDetails.pull_number}: ${prDetails.title}`);
 
+    if (prDetails.title.toLowerCase().includes("[skip-summary]")) {
+      core.info("Skipping summarization as PR title contains [skip-summary]");
+      return;
+    }
+
     let diff: Optional<string>;
     const eventData = JSON.parse(
       readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")
