@@ -1,10 +1,10 @@
 {
   "type": "module",
-  "name": "@ashgw/pr-summarizer",
+  "name": "pr-summarizer",
   "version": "1.0.0",
   "description": "AI powered code reviews",
   "main": "lib/main.js",
-  "author": "Ashref Gwader",
+  "author": "@rccyx",
   "license": "MIT",
   "scripts": {
     "build": "bun build src/index.ts --target=node --outdir=dist --format=esm",
@@ -36,13 +36,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ashgw/pr-summarizer.git"
+    "url": "git+https://github.com/rccyx/pr-summarizer.git"
   },
   "bugs": {
-    "url": "https://github.com/ashgw/pr-summarizer/issues"
+    "url": "https://github.com/rccyx/pr-summarizer/issues"
   },
-  "homepage": "https://github.com/ashgw/pr-summarizer#readme",
+  "homepage": "https://github.com/rccyx/pr-summarizer#readme",
   "engines": {
     "node": ">=18"
   }
 }
+

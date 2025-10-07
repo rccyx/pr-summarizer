@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: ashgw/pr-summarizer@main
+      - uses: rccyx/pr-summarizer@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -68,3 +68,4 @@ The `override_summary` parameter controls how the summary is added when using `o
 ## License
 
 [MIT](/license)
+
