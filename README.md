@@ -1,8 +1,6 @@
-# AI PR Summarizer
-
 This action generates a concise summary of pull request changes. It's lightweight, fast to set up, and outputs high-quality technical summaries that help you instantly grasp what changed and why. This is best used for small or solo projects as a way to keep track of changes and serve as auto-documentation
 
-![image](https://github.com/user-attachments/assets/fb234a5e-9348-4f82-8afb-1b452bec2bba)
+Check this [example](https://github.com/rccyx/x/pull/630).
 
 ## Setup
 
