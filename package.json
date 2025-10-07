@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "pr-summarizer",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "AI powered code reviews",
   "main": "lib/main.js",
   "author": "@rccyx",
@@ -46,4 +46,3 @@
     "node": ">=18"
   }
 }
-
