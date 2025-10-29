@@ -1,16 +1,7 @@
 {
-  "type": "module",
-  "name": "pr-summarizer",
-  "version": "3.0.0",
-  "description": "AI powered code reviews",
-  "main": "lib/main.js",
   "author": "@rccyx",
-  "license": "MIT",
-  "scripts": {
-    "build": "bun build src/index.ts --target=node --outdir=dist --format=esm",
-    "package": "ncc build dist/index.js --source-map --license licenses.txt",
-    "format": "prettier --write .",
-    "lint": "prettier --check ."
+  "bugs": {
+    "url": "https://github.com/rccyx/pr-summarizer/issues"
   },
   "dependencies": {
     "@actions/core": "^1.10.1",
@@ -20,6 +11,7 @@
     "parse-diff": "^0.11.1",
     "ts-node": "^10.9.2"
   },
+  "description": "AI powered code reviews",
   "devDependencies": {
     "@types/node": "^20.10.5",
     "@vercel/ncc": "^0.38.1",
@@ -27,6 +19,10 @@
     "ts-roids": "^1.50.0",
     "typescript": "^5.3.3"
   },
+  "engines": {
+    "node": ">=18"
+  },
+  "homepage": "https://github.com/rccyx/pr-summarizer#readme",
   "keywords": [
     "github-action",
     "code-review",
@@ -34,15 +30,19 @@
     "openai",
     "automation"
   ],
+  "license": "MIT",
+  "main": "lib/main.js",
+  "name": "pr-summarizer",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rccyx/pr-summarizer.git"
   },
-  "bugs": {
-    "url": "https://github.com/rccyx/pr-summarizer/issues"
+  "scripts": {
+    "build": "bun build src/index.ts --target=node --outdir=dist --format=esm",
+    "format": "prettier --write .",
+    "lint": "prettier --check .",
+    "package": "ncc build dist/index.js --source-map --license licenses.txt"
   },
-  "homepage": "https://github.com/rccyx/pr-summarizer#readme",
-  "engines": {
-    "node": ">=18"
-  }
+  "type": "module",
+  "version": "3.0.1"
 }
