@@ -27,7 +27,7 @@ export class AiService {
       ],
       temperature: 0.3,
       max_tokens: 4096,
-      seed: 69,
+      seed: 89,
     });
     return response.choices[0].message?.content?.trim() ?? null;
   }
